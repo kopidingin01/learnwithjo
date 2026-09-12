@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:720px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box">
+    <a href="web-design.dc.html" style="fontSize:13px;color:var(--color-accent)">{{backLabel}}</a>
+    <article style="display:flex;flexDirection:column;gap:var(--space-4);marginTop:var(--space-4)">
+      <div style="display:flex;flexDirection:column;gap:var(--space-2)">
+        <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent)">Web Design · UI</span>
+        <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:38px;lineHeight:1.15;margin:0">Sistem Warna untuk Yang Bukan Desainer</h1>
+        <div style="fontSize:13px;opacity:0.6;display:flex;gap:10px"><span>4 Sep 2026</span><span>·</span><span>6 menit baca</span><span>·</span><span>Jo</span></div>
+      </div>
+      <div style="aspectRatio:16/9;position:relative;overflow:hidden;borderRadius:var(--radius-md)">
+        <image-slot id="cover-webdesign-color" placeholder="palet warna / color swatches"></image-slot>
+      </div>
+
+      <p style="fontSize:17px;lineHeight:1.65">Aku pernah bangga dengan satu desain: teks abu-abu muda di atas putih, terlihat sangat "clean" di layar laptopku. Sampai temanku bilang dia harus memicingkan mata buat baca teksnya. Itu momen aku benar-benar paham bahwa kontras bukan soal selera, ada angka yang menentukannya.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Kenapa kontras bukan cuma soal estetika</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">WCAG (Web Content Accessibility Guidelines) menetapkan standar rasio kontras minimum: 4.5:1 untuk teks berukuran normal, dan 3:1 untuk teks besar (18pt/24px ke atas, atau 14pt/18.67px tebal ke atas). Rasio ini bukan angka sembarangan — dihitung dari perbedaan kecerahan antara warna teks dan latarnya. Hitam di atas putih punya rasio 21:1 (maksimum), sementara pasangan warna yang "terlihat estetik" seperti abu-abu muda di putih bisa jatuh jauh di bawah 4.5:1 tanpa disadari.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Membangun satu palet dari satu warna</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Daripada menebak-nebak warna baru setiap butuh, cara yang lebih sistematis adalah membangun <em>tonal ramp</em> — satu warna dasar yang diturunkan jadi beberapa langkah terang-gelap (biasanya diberi label seperti 100 untuk paling terang, 900 untuk paling gelap). Langkah terang dipakai untuk fill halus atau hover, langkah tengah untuk elemen interaktif utama, dan langkah gelap untuk teks di atas fill bertona. Sistem ini menjaga semua warna di halaman "senada" karena diturunkan dari satu sumber, bukan dipilih terpisah-pisah.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Cara cepat cek kontras</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Tidak perlu menghitung manual — tools gratis seperti WebAIM Contrast Checker langsung memberi tahu apakah pasangan warna tertentu lolos AA atau tidak, dengan memasukkan kode hex teks dan latar. Kebiasaan kecil ini yang menyelamatkanku dari mengulang kesalahan "abu-abu di atas putih" yang sama.</p>
+
+      <div style="display:flex;gap:10px;flexWrap:wrap;marginTop:var(--space-2)">
+        <span class="tag tag-accent">UI</span><span class="tag tag-neutral">Warna</span><span class="tag tag-neutral">Aksesibilitas</span>
+      </div>
+
+      <div style="marginTop:var(--space-4);paddingTop:var(--space-4);borderTop:1px solid var(--color-divider);display:flex;flexDirection:column;gap:8px">
+        <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;opacity:0.6">{{refLabel}}</span>
+        <a href="https://webaim.org/articles/contrast/" style="fontSize:14px">WebAIM — Contrast and Color Accessibility</a>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Perceivable/Color_contrast" style="fontSize:14px">MDN Web Docs — Color Contrast (WCAG)</a>
+      </div>
+    </article>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id' };
+  componentDidMount() {
+    import('./content.js').then((mod) => { this.mod = mod; this.setState({ lang: mod.langHelpers.getLang() }); });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return { lang: this.state.lang, toggleLang: this.toggleLang, backLabel: en ? '\u2190 Back to Web Design' : '\u2190 Kembali ke Web Design', refLabel: en ? 'Sources' : 'Referensi' };
+  }
+}
+</script>
+</body>
+</html>

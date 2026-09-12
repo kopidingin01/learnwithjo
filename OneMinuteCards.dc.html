@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:grid;gridTemplateColumns:repeat(auto-fill, minmax(220px, 1fr));gap:var(--space-3)">
+  <sc-for list="{{cards}}" as="c" hint-placeholder-count="12">
+    <div class="card elev-sm" style="gap:8px">
+      <h3 class="card-title" style="fontSize:15px">{{c.term}}</h3>
+      <code style="fontFamily:monospace;fontSize:12px;background:var(--color-bg);padding:6px 8px;borderRadius:var(--radius-sm);color:var(--color-accent-2)">{{c.code}}</code>
+      <p class="card-body" style="fontSize:12.5px">{{c.meaning}}</p>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+</body>
+</html>

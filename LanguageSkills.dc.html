@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flexDirection:column;gap:var(--space-5)">
+  <div style="display:flex;gap:10px;flexWrap:wrap">
+    <sc-for list="{{tabs}}" as="tab" hint-placeholder-count="5">
+      <button onClick="{{tab.onClick}}" style="display:inline-flex;alignItems:center;padding:8px 16px;borderRadius:999px;fontSize:14px;cursor:pointer;border:1px solid {{tab.border}};background:{{tab.bg}};color:{{tab.color}};fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight)">{{tab.label}}</button>
+    </sc-for>
+  </div>
+
+  <div style="display:flex;flexDirection:column;gap:var(--space-4)">
+    <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">{{active.label}}</h2>
+    <p style="fontSize:16px;lineHeight:1.6;opacity:0.85;maxWidth:720px">{{active.intro}}</p>
+
+    <ul style="margin:0;paddingLeft:20px;display:flex;flexDirection:column;gap:6px;fontSize:14px;maxWidth:720px">
+      <sc-for list="{{active.materials}}" as="m" hint-placeholder-count="5">
+        <li style="opacity:0.85">{{m}}</li>
+      </sc-for>
+    </ul>
+
+    <sc-if value="{{active.hasContext}}" hint-placeholder-val="{{false}}">
+      <div style="background:var(--color-surface);borderRadius:var(--radius-md);padding:var(--space-4);fontSize:14px;lineHeight:1.7;whiteSpace:pre-line;maxWidth:720px">{{active.context}}</div>
+    </sc-if>
+
+    <div style="display:flex;flexDirection:column;gap:var(--space-4);marginTop:var(--space-2)">
+      <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">{{questionsLabel}}</span>
+      <sc-for list="{{active.questions}}" as="q" hint-placeholder-count="5">
+        <div style="display:flex;flexDirection:column;gap:8px;paddingBottom:var(--space-4);borderBottom:1px solid var(--color-divider)">
+          <div style="display:flex;gap:10px">
+            <span style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);color:var(--color-accent);minWidth:24px">{{q.num}}</span>
+            <span style="fontSize:15px;lineHeight:1.55;fontWeight:500">{{q.prompt}}</span>
+          </div>
+          <sc-if value="{{q.hasOptions}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;flexDirection:column;gap:4px;marginLeft:34px">
+              <sc-for list="{{q.optionRows}}" as="opt" hint-placeholder-count="4">
+                <span style="fontSize:14px;color:{{opt.color}};fontWeight:{{opt.weight}}">{{opt.text}}</span>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{q.hasAnswer}}" hint-placeholder-val="{{false}}">
+            <div style="marginLeft:34px;fontSize:14px;color:var(--color-accent-2);fontWeight:600">{{answerLabel}}: {{q.answer}}</div>
+          </sc-if>
+          <div style="marginLeft:34px;fontSize:14px;lineHeight:1.6;opacity:0.8">
+            <span style="fontWeight:600;opacity:0.9">{{explanationLabel}}: </span>{{q.explanation}}
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { activeKey: null };
+  renderVals() {
+    const lang = this.props.lang || 'id';
+    const en = lang === 'en';
+    const sections = this.props.sections || [];
+    const activeKey = this.state.activeKey || (sections[0] && sections[0].key);
+    const tabs = sections.map((s) => {
+      const on = s.key === activeKey;
+      return {
+        key: s.key, label: s.label,
+        onClick: () => this.setState({ activeKey: s.key }),
+        bg: on ? 'var(--color-accent)' : 'transparent',
+        color: on ? 'var(--color-bg)' : 'var(--color-accent-700)',
+        border: on ? 'transparent' : 'var(--color-accent)'
+      };
+    });
+    const rawActive = sections.find((s) => s.key === activeKey) || sections[0] || { label: '', intro: '', materials: [], questions: [] };
+    const questions = (rawActive.questions || []).map((q, i) => {
+      const optionRows = (q.options || []).map((o) => ({ text: o, color: o === q.answer ? 'var(--color-accent-700)' : 'var(--color-text)', weight: o === q.answer ? 700 : 400 }));
+      return { ...q, num: String(i + 1).padStart(2, '0'), hasOptions: optionRows.length > 0, optionRows, hasAnswer: !!q.answer && optionRows.length === 0 };
+    });
+    const active = { ...rawActive, questions, hasContext: !!rawActive.context };
+    return {
+      tabs, active,
+      questionsLabel: en ? 'Practice questions' : 'Contoh soal',
+      answerLabel: en ? 'Answer' : 'Jawaban',
+      explanationLabel: en ? 'Explanation' : 'Pembahasan'
+    };
+  }
+}
+</script>
+</body>
+</html>

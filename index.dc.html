@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="home" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+
+  <main style="maxWidth:1180px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box;display:flex;flexDirection:column;gap:var(--space-8)">
+    <section style="display:flex;flexDirection:column;gap:var(--space-3);maxWidth:680px;borderTop:3px solid var(--color-text);paddingTop:var(--space-4)">
+      <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent)">{{heroKicker}}</span>
+      <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:44px;lineHeight:1.1;margin:0">{{heroTitle}}</h1>
+      <p style="fontSize:17px;opacity:0.8;maxWidth:520px">{{heroSubtitle}}</p>
+      <div style="display:flex;gap:var(--space-3);marginTop:var(--space-2)">
+        <a href="#kategori" class="btn btn-primary">{{ctaRead}}</a>
+        <a href="tentang.dc.html" class="btn btn-secondary">{{ctaAbout}}</a>
+      </div>
+    </section>
+
+    <section id="kategori" style="display:flex;flexDirection:column;gap:var(--space-4)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">{{sectionKategoriTitle}}</h2>
+      <div style="display:grid;gridTemplateColumns:repeat(auto-fill, minmax(260px, 1fr));gap:var(--space-4)">
+        <sc-for list="{{hubCards}}" as="card" hint-placeholder-count="8">
+          <a class="card" href="{{card.href}}" onMouseEnter="{{card.onEnter}}" onMouseLeave="{{card.onLeave}}" style="textDecoration:none;color:var(--color-text);transform:{{card.transform}};boxShadow:{{card.shadow}};transition:transform 0.18s ease, box-shadow 0.18s ease">
+            <span class="card-kicker">{{card.kicker}}</span>
+            <h3 class="card-title">{{card.title}}</h3>
+            <p class="card-body">{{card.desc}}</p>
+            <sc-if value="{{card.hovered}}" hint-placeholder-val="{{false}}">
+              <span style="fontSize:13px;color:var(--color-accent);fontWeight:600">{{exploreLabel}} →</span>
+            </sc-if>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display:flex;flexDirection:column;gap:var(--space-4)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">{{sectionLatestTitle}}</h2>
+      <div style="display:grid;gridTemplateColumns:repeat(auto-fill, minmax(260px, 1fr));gap:var(--space-4)">
+        <sc-for list="{{latest}}" as="item" hint-placeholder-count="6">
+          <a class="card" href="{{item.href}}" onMouseEnter="{{item.onEnter}}" onMouseLeave="{{item.onLeave}}" style="textDecoration:none;color:var(--color-text);transform:{{item.transform}};boxShadow:{{item.shadow}};transition:transform 0.18s ease, box-shadow 0.18s ease">
+            <span class="card-kicker">{{item.tag}}</span>
+            <h3 class="card-title">{{item.title}}</h3>
+            <p class="card-body">{{item.excerpt}}</p>
+            <div class="card-meta"><span>{{item.date}}</span><span>·</span><span>{{item.readTime}}</span></div>
+            <sc-if value="{{item.hovered}}" hint-placeholder-val="{{false}}">
+              <span style="fontSize:13px;color:var(--color-accent);fontWeight:600">{{readLabel}} →</span>
+            </sc-if>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+  </main>
+
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id', latest: [], hovered: null };
+  setHover = (key) => this.setState({ hovered: key });
+  clearHover = () => this.setState({ hovered: null });
+  componentDidMount() {
+    import('./content.js').then((mod) => {
+      this.mod = mod;
+      this.setState({ lang: mod.langHelpers.getLang(), latest: mod.latest });
+    });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const lang = this.state.lang;
+    const en = lang === 'en';
+    const cards = [
+      { href: 'cyber-security.dc.html', kicker: en ? 'Category' : 'Kategori', title: 'Cyber Security', desc: en ? 'Networking, threats, and defense basics, written while learning.' : 'Jaringan, ancaman, dan dasar pertahanan, ditulis sambil belajar.' },
+      { href: 'web-development.dc.html', kicker: en ? 'Category' : 'Kategori', title: 'Web Development', desc: en ? 'Frontend, backend, APIs, and the databases behind them.' : 'Frontend, backend, API, dan database di baliknya.' },
+      { href: 'web-design.dc.html', kicker: en ? 'Category' : 'Kategori', title: 'Web Design', desc: en ? 'UI, UX, layout, and type choices for the web.' : 'UI, UX, layout, dan pemilihan tipografi untuk web.' },
+      { href: 'kali-linux.dc.html', kicker: en ? 'Category' : 'Kategori', title: 'Kali Linux', desc: en ? 'Setup, config, and getting around the toolset.' : 'Instalasi, konfigurasi, dan menjelajahi tools-nya.' },
+      { href: 'penetration-testing.dc.html', kicker: en ? 'Category' : 'Kategori', title: 'Penetration Testing', desc: en ? 'Recon, exploitation, and reporting, lab by lab.' : 'Recon, eksploitasi, dan reporting, lab demi lab.' },
+      { href: 'github-git.dc.html', kicker: en ? 'Category' : 'Kategori', title: 'GitHub', desc: en ? 'Git basics, branching, and collaborating with others.' : 'Dasar Git, branching, dan kolaborasi dengan orang lain.' },
+      { href: 'tools.dc.html', kicker: en ? 'Reference' : 'Referensi', title: en ? 'Kali Linux Tools' : 'Tools Kali Linux', desc: en ? 'A running list of tools I actually use.' : 'Daftar tools yang benar-benar aku pakai.' },
+      { href: 'bahasa.dc.html', kicker: en ? 'Category' : 'Kategori', title: en ? 'Languages' : 'Bahasa', desc: en ? 'English (IELTS), Spanish, and Deutsch notes.' : 'Catatan Inggris (IELTS), Spanish, dan Deutsch.' }
+    ].map((c, i) => {
+      const key = 'hub-' + i;
+      const hovered = this.state.hovered === key;
+      return { ...c, onEnter: () => this.setHover(key), onLeave: this.clearHover, hovered, transform: hovered ? 'translateY(-4px) scale(1.02)' : 'none', shadow: hovered ? 'var(--shadow-lg)' : 'var(--shadow-sm)' };
+    });
+    const latestWithHover = (this.state.latest || []).map((it, i) => {
+      const key = 'latest-' + i;
+      const hovered = this.state.hovered === key;
+      return { ...it, onEnter: () => this.setHover(key), onLeave: this.clearHover, hovered, transform: hovered ? 'translateY(-4px) scale(1.02)' : 'none', shadow: hovered ? 'var(--shadow-lg)' : 'var(--shadow-sm)' };
+    });
+    return {
+      lang, toggleLang: this.toggleLang,
+      hubCards: cards,
+      latest: latestWithHover,
+      exploreLabel: en ? 'Explore' : 'Jelajahi',
+      readLabel: en ? 'Read' : 'Baca',
+      heroKicker: en ? 'Personal learning log' : 'Catatan belajar pribadi',
+      heroTitle: en ? 'Learning cyber security, web, and languages — out loud.' : 'Belajar cyber security, web, dan bahasa — secara terbuka.',
+      heroSubtitle: en ? 'This is where I write down what I learn about security, building for the web, and picking up new languages. Messy first, useful later.' : 'Di sini aku menulis apa yang aku pelajari soal keamanan, membangun web, dan belajar bahasa baru. Berantakan dulu, berguna belakangan.',
+      ctaRead: en ? 'Browse topics' : 'Lihat topik',
+      ctaAbout: en ? 'About me' : 'Tentang saya',
+      sectionKategoriTitle: en ? 'Topics' : 'Topik',
+      sectionLatestTitle: en ? 'Latest articles' : 'Artikel terbaru'
+    };
+  }
+}
+</script>
+</body>
+</html>

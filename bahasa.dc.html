@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="bahasa" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:1180px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box;display:flex;flexDirection:column;gap:var(--space-6)">
+    <section style="display:flex;flexDirection:column;gap:var(--space-2);maxWidth:640px;borderTop:3px solid var(--color-accent-2);paddingTop:var(--space-4)">
+      <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">{{kicker}}</span>
+      <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:36px;margin:0">{{title}}</h1>
+      <p style="fontSize:16px;opacity:0.8">{{desc}}</p>
+    </section>
+    <div style="display:grid;gridTemplateColumns:repeat(auto-fill, minmax(280px, 1fr));gap:var(--space-4)">
+      <sc-for list="{{langCards}}" as="card" hint-placeholder-count="3">
+        <a class="card elev-sm" href="{{card.href}}" style="textDecoration:none;color:var(--color-text)">
+          <span class="card-kicker">{{card.kicker}}</span>
+          <h3 class="card-title">{{card.title}}</h3>
+          <p class="card-body">{{card.desc}}</p>
+        </a>
+      </sc-for>
+    </div>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id' };
+  componentDidMount() {
+    import('./content.js').then((mod) => {
+      this.mod = mod;
+      this.setState({ lang: mod.langHelpers.getLang() });
+    });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return {
+      lang: this.state.lang, toggleLang: this.toggleLang,
+      kicker: en ? 'Category' : 'Kategori',
+      title: en ? 'Languages' : 'Bahasa',
+      desc: en ? "Notes from learning three languages at the same time — not fluent yet, just consistent." : 'Catatan dari belajar tiga bahasa sekaligus — belum lancar, tapi konsisten.',
+      langCards: [
+        { href: 'bahasa-inggris.dc.html', kicker: 'IELTS', title: en ? 'English' : 'Inggris', desc: en ? 'Writing, speaking, listening, and reading, prepping for the IELTS.' : 'Writing, speaking, listening, dan reading, latihan untuk IELTS.' },
+        { href: 'bahasa-spanish.dc.html', kicker: en ? 'Language' : 'Bahasa', title: 'Spanish', desc: en ? 'Grammar, vocabulary, and small conversation drills.' : 'Grammar, vocabulary, dan latihan percakapan singkat.' },
+        { href: 'bahasa-deutsch.dc.html', kicker: en ? 'Language' : 'Bahasa', title: 'Deutsch', desc: en ? 'German grammar, words, and getting through first conversations.' : 'Grammatik, kosakata, dan bertahan di percakapan pertama.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

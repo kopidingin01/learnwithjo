@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<footer style="borderTop:1px solid var(--color-divider);marginTop:var(--space-8)">
+  <div style="maxWidth:1180px;margin:0 auto;padding:var(--space-6) var(--space-4);display:flex;justifyContent:space-between;flexWrap:wrap;gap:var(--space-4)">
+    <div>
+      <div style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:16px">Learning with Jo</div>
+      <p style="fontSize:13px;opacity:0.7;marginTop:6px;maxWidth:360px">{{tagline}}</p>
+    </div>
+    <div style="display:flex;gap:20px;alignItems:flex-start">
+      <a href="https://github.com/" style="fontSize:13px">GitHub</a>
+      <a href="kontak.dc.html" style="fontSize:13px">{{contactLabel}}</a>
+      <a href="tentang.dc.html" style="fontSize:13px">{{aboutLabel}}</a>
+    </div>
+  </div>
+  <div style="maxWidth:1180px;margin:0 auto;padding:0 var(--space-4) var(--space-4);fontSize:12px;opacity:0.55">{{copy}}</div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const lang = this.props.lang || 'id';
+    return lang === 'en' ? {
+      tagline: 'Notes on cyber security, web dev, and language learning — written while I learn them myself.',
+      contactLabel: 'Contact', aboutLabel: 'About',
+      copy: '© 2026 Learning with Jo. Built for learning, shared for anyone curious.'
+    } : {
+      tagline: 'Catatan belajar cyber security, web dev, dan bahasa — ditulis sambil aku sendiri belajar.',
+      contactLabel: 'Kontak', aboutLabel: 'Tentang',
+      copy: '© 2026 Learning with Jo. Dibuat sambil belajar, dibagikan untuk siapa saja yang penasaran.'
+    };
+  }
+}
+</script>
+</body>
+</html>

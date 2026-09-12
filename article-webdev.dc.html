@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:720px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box">
+    <a href="web-development.dc.html" style="fontSize:13px;color:var(--color-accent-2)">{{backLabel}}</a>
+    <article style="display:flex;flexDirection:column;gap:var(--space-4);marginTop:var(--space-4)">
+      <div style="display:flex;flexDirection:column;gap:var(--space-2)">
+        <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">Web Development · Frontend</span>
+        <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:38px;lineHeight:1.15;margin:0">State Management: Kapan Butuh, Kapan Nggak</h1>
+        <div style="fontSize:13px;opacity:0.6;display:flex;gap:10px"><span>5 Sep 2026</span><span>·</span><span>7 menit baca</span><span>·</span><span>Jo</span></div>
+      </div>
+      <div style="aspectRatio:16/9;position:relative;overflow:hidden;borderRadius:var(--radius-md)">
+        <image-slot id="cover-webdev-state" placeholder="screenshot React DevTools — pohon komponen dan state"></image-slot>
+      </div>
+
+      <p style="fontSize:17px;lineHeight:1.65">Proyek pertamaku yang "serius" cuma to-do list sederhana: input teks, tombol tambah, daftar item. Tapi entah kenapa aku merasa proyek belum "profesional" kalau belum pakai Redux. Tiga hari kemudian aku baru sadar: aku baru saja menghabiskan waktu lebih banyak menulis boilerplate Redux daripada logika to-do list-nya sendiri.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Apa itu "state", sebenarnya?</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">State adalah data yang bisa berubah dan memengaruhi apa yang ditampilkan — status checkbox tercentang atau tidak, teks yang sedang diketik di form, atau daftar item yang sedang tampil. Di React, <code>useState</code> adalah cara paling dasar menyimpan state ini di level satu komponen. Selama data itu hanya dipakai oleh komponen itu sendiri (atau diteruskan ke 1-2 komponen anak lewat props), <code>useState</code> biasanya sudah cukup — tidak perlu library tambahan apa pun.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Kapan Context cukup, kapan butuh Redux/Zustand</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Masalah muncul saat data itu dibutuhkan komponen yang "jauh" secara struktur — misalnya info user yang login dibutuhkan di navbar, sidebar, dan halaman profil sekaligus. Meneruskan lewat props berjenjang seperti itu disebut <em>prop drilling</em>, dan makin dalam strukturnya, makin merepotkan. React Context menyelesaikan ini tanpa library tambahan: sekali didefinisikan, komponen mana pun bisa "mengambil" data itu langsung. Redux (atau alternatif yang lebih ringan seperti Zustand) baru benar-benar terasa gunanya ketika aplikasinya besar, punya tim banyak orang, dan butuh cara debug yang bisa dilacak — misalnya melihat urutan perubahan state lewat waktu.</p>
+
+      <blockquote style="fontFamily:var(--font-heading);fontStyle:italic;fontSize:20px;lineHeight:1.5;margin:0;opacity:0.85">"React sendiri sudah cukup kuat — useState, useReducer, dan useContext biasanya sudah menyelesaikan sebagian besar masalah. Baru cari library tambahan kalau yang dasar itu benar-benar tidak cukup lagi."</blockquote>
+
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Aturan praktis yang sekarang aku pegang: mulai dari local state, naik ke Context kalau ada prop drilling yang mengganggu, dan baru pertimbangkan Redux/Zustand kalau Context pun mulai terasa berat dikelola. Kebanyakan proyek personal atau MVP kecil berhenti di langkah kedua.</p>
+
+      <div style="display:flex;gap:10px;flexWrap:wrap;marginTop:var(--space-2)">
+        <span class="tag tag-accent-2">Frontend</span><span class="tag tag-neutral">React</span><span class="tag tag-neutral">State Management</span>
+      </div>
+
+      <div style="marginTop:var(--space-4);paddingTop:var(--space-4);borderTop:1px solid var(--color-divider);display:flex;flexDirection:column;gap:8px">
+        <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;opacity:0.6">{{refLabel}}</span>
+        <a href="https://react.dev/reference/react/useState" style="fontSize:14px">React Docs — useState Reference</a>
+        <a href="https://www.freecodecamp.org/news/how-to-manage-state-in-a-react-app/" style="fontSize:14px">freeCodeCamp — How to Manage State in a React App</a>
+        <a href="https://www.developerway.com/posts/react-state-management-2025" style="fontSize:14px">Developer Way — React State Management in 2025</a>
+      </div>
+    </article>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id' };
+  componentDidMount() {
+    import('./content.js').then((mod) => { this.mod = mod; this.setState({ lang: mod.langHelpers.getLang() }); });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return { lang: this.state.lang, toggleLang: this.toggleLang, backLabel: en ? '\u2190 Back to Web Development' : '\u2190 Kembali ke Web Development', refLabel: en ? 'Sources' : 'Referensi' };
+  }
+}
+</script>
+</body>
+</html>

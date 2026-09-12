@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="web-design" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:1180px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box;display:flex;flexDirection:column;gap:var(--space-6)">
+    <section style="display:flex;flexDirection:column;gap:var(--space-2);maxWidth:640px;borderTop:3px solid var(--color-accent);paddingTop:var(--space-4)">
+      <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent)">{{kicker}}</span>
+      <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:36px;margin:0">Web Design</h1>
+      <p style="fontSize:16px;opacity:0.8">{{desc}}</p>
+    </section>
+    <dc-import name="DashStats" stats="{{stats}}" hint-size="100%,80px"></dc-import>
+    <nav style="display:flex;gap:10px;flexWrap:wrap">
+      <a href="#materi" class="tag tag-outline" style="textDecoration:none">{{navMateri}}</a>
+      <a href="#playground" class="tag tag-outline" style="textDecoration:none">{{navPlayground}}</a>
+      <a href="#quiz" class="tag tag-outline" style="textDecoration:none">{{navQuiz}}</a>
+    </nav>
+    <div id="materi">
+      <dc-import name="MateriDetail" storage-key="lwj_progress_webdesign" concept-nodes="{{materiConceptNodes}}" concept-mindset="{{materiConceptMindset}}" steps="{{materiSteps}}" terms="{{materiTerms}}" project="{{materiProject}}" lang="{{lang}}" hint-size="100%,600px"></dc-import>
+    </div>
+    <div id="playground" style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{playgroundTitle}}</h2>
+      <p style="fontSize:14px;opacity:0.7;margin:0">{{playgroundDesc}}</p>
+      <dc-import name="CodePlayground" initial-html="&lt;div class=&quot;card&quot;&gt;&lt;h3&gt;Judul Kartu&lt;/h3&gt;&lt;p&gt;Coba ubah warna, radius, atau spacing di CSS.&lt;/p&gt;&lt;/div&gt;" initial-css="{{cardCss}}" lang="{{lang}}" hint-size="100%,380px"></dc-import>
+    </div>
+    <div id="quiz" style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{quizTitle}}</h2>
+      <dc-import name="QuizWidget" questions="{{quiz}}" lang="{{lang}}" hint-size="100%,260px"></dc-import>
+    </div>
+    <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{articlesTitle}}</h2>
+    <dc-import name="ArticleGrid" articles="{{articles}}" tags="{{tags}}" lang="{{lang}}" hint-size="100%,400px"></dc-import>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id', articles: [], tags: [], materi: { steps: [], terms: [], project: {} }, quiz: [] };
+  componentDidMount() {
+    import('./content.js').then((mod) => {
+      this.mod = mod;
+      this.setState({ lang: mod.langHelpers.getLang(), articles: mod.articles.webdesign, tags: mod.tags.webdesign, materi: mod.materi.webdesign, quiz: mod.quiz.webdesign });
+    });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return {
+      lang: this.state.lang, toggleLang: this.toggleLang, articles: this.state.articles, tags: this.state.tags,
+      materiSteps: this.state.materi.steps, materiTerms: this.state.materi.terms, materiProject: this.state.materi.project,
+      materiConceptNodes: this.state.materi.concept ? this.state.materi.concept.nodes : [], materiConceptMindset: this.state.materi.concept ? this.state.materi.concept.mindset : '',
+      articlesTitle: en ? 'Articles' : 'Artikel',
+      kicker: en ? 'Category' : 'Kategori',
+      desc: en ? 'UI, UX, layout, and type, learning to design for the web without a formal design background.' : 'UI, UX, layout, dan tipografi, belajar mendesain web tanpa background desain formal.',
+      quiz: this.state.quiz,
+      cardCss: '.card {\n  width: 260px;\n  padding: 20px;\n  border-radius: 12px;\n  background: #eef2f6;\n  box-shadow: 0 2px 10px rgba(0,0,0,0.08);\n}\n.card h3 {\n  margin: 0 0 8px;\n  color: #0088b0;\n}',
+      stats: [
+        { value: (this.state.materi.steps || []).length, label: en ? 'Lessons' : 'Materi' },
+        { value: (this.state.materi.terms || []).length, label: en ? 'Terms' : 'Istilah' },
+        { value: en ? 'Live' : 'Interaktif', label: 'Playground' },
+        { value: en ? 'Beginner' : 'Pemula', label: en ? 'Friendly' : 'Ramah' }
+      ],
+      navMateri: en ? 'Learning path' : 'Materi', navPlayground: 'Playground', navQuiz: 'Quiz',
+      playgroundTitle: en ? 'Design playground' : 'Playground desain',
+      playgroundDesc: en ? 'Tweak the card styles below and see the live preview update.' : 'Ubah styling kartu di bawah dan lihat preview-nya berubah langsung.',
+      quizTitle: en ? 'Quick quiz' : 'Kuis singkat'
+    };
+  }
+}
+</script>
+</body>
+</html>

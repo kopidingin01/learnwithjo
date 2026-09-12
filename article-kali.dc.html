@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:720px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box">
+    <a href="kali-linux.dc.html" style="fontSize:13px;color:var(--color-accent-2)">{{backLabel}}</a>
+    <article style="display:flex;flexDirection:column;gap:var(--space-4);marginTop:var(--space-4)">
+      <div style="display:flex;flexDirection:column;gap:var(--space-2)">
+        <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">Kali Linux · Instalasi</span>
+        <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:38px;lineHeight:1.15;margin:0">Instal Kali Linux di VirtualBox dari Nol</h1>
+        <div style="fontSize:13px;opacity:0.6;display:flex;gap:10px"><span>3 Sep 2026</span><span>·</span><span>7 menit baca</span><span>·</span><span>Jo</span></div>
+      </div>
+      <div style="aspectRatio:16/9;position:relative;overflow:hidden;borderRadius:var(--radius-md)">
+        <image-slot id="cover-kali-install" placeholder="screenshot VirtualBox Manager dengan VM Kali Linux"></image-slot>
+      </div>
+
+      <p style="fontSize:17px;lineHeight:1.65">Sebelum menyentuh satu pun tools security, hal pertama yang aku lakukan justru bukan belajar Nmap atau Metasploit — tapi memastikan Kali-ku jalan di lingkungan yang benar-benar terisolasi dari laptop utama. Ini catatan setup yang aku pakai dari nol.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Pre-built VM vs instalasi dari ISO</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Kali Linux resmi menyediakan dua jalur: mengunduh image VM yang sudah jadi (pre-built) langsung dari halaman Virtual Machines di kali.org, atau mengunduh file ISO dan menginstallnya dari nol layaknya install OS baru. Pre-built lebih cepat — tinggal extract file 7z lalu "Add" di VirtualBox — tapi instalasi dari ISO memberi kontrol lebih penuh atas partisi dan pilihan desktop environment (GNOME, XFCE, KDE, dan lainnya). Untuk pemula yang cuma mau cepat mulai praktik, pre-built VM biasanya jalan pintas yang paling masuk akal.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Alokasi resource yang wajar</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Kali tidak butuh spek gila-gilaan untuk kebutuhan latihan dasar — 2 CPU core dan 4GB RAM biasanya cukup nyaman untuk menjalankan tools satu per satu. Yang lebih penting dari sekadar spek adalah memastikan virtualisasi (Intel VT-x atau AMD-V) sudah diaktifkan di BIOS/UEFI laptop, karena tanpa ini VirtualBox tidak akan bisa menjalankan VM 64-bit sama sekali.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Setelah instalasi: guest additions & snapshot</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Begitu Kali menyala, installer biasanya otomatis mendeteksi bahwa dia berjalan di dalam VM dan memasang "guest additions" — driver tambahan yang membuat resolusi layar dan performa grafis lebih nyaman. Langkah yang sering dilewatkan pemula tapi paling menyelamatkan: buat snapshot tepat setelah setup awal ini selesai. Snapshot adalah titik kembali yang bisa dipanggil sewaktu-waktu kalau eksperimen berikutnya (apt install yang salah, konfigurasi yang berantakan) merusak sistem.</p>
+
+      <div style="display:flex;gap:10px;flexWrap:wrap;marginTop:var(--space-2)">
+        <span class="tag tag-accent-2">Instalasi</span><span class="tag tag-neutral">VirtualBox</span><span class="tag tag-neutral">Home Lab</span>
+      </div>
+
+      <div style="marginTop:var(--space-4);paddingTop:var(--space-4);borderTop:1px solid var(--color-divider);display:flex;flexDirection:column;gap:8px">
+        <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;opacity:0.6">{{refLabel}}</span>
+        <a href="https://www.kali.org/docs/virtualization/import-premade-virtualbox/" style="fontSize:14px">Kali Linux Docs — Import Pre-Made VirtualBox VM</a>
+        <a href="https://www.kali.org/docs/virtualization/install-virtualbox-guest-vm/" style="fontSize:14px">Kali Linux Docs — Kali inside VirtualBox (Guest VM)</a>
+      </div>
+    </article>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id' };
+  componentDidMount() {
+    import('./content.js').then((mod) => { this.mod = mod; this.setState({ lang: mod.langHelpers.getLang() }); });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return { lang: this.state.lang, toggleLang: this.toggleLang, backLabel: en ? '\u2190 Back to Kali Linux' : '\u2190 Kembali ke Kali Linux', refLabel: en ? 'Sources' : 'Referensi' };
+  }
+}
+</script>
+</body>
+</html>

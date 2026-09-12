@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="kontak" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:680px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box;display:flex;flexDirection:column;gap:var(--space-6)">
+    <div style="display:flex;flexDirection:column;gap:var(--space-2);borderTop:3px solid var(--color-accent-2);paddingTop:var(--space-4)">
+      <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">{{kicker}}</span>
+      <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:36px;margin:0">{{heading}}</h1>
+      <p style="fontSize:16px;opacity:0.8">{{desc}}</p>
+    </div>
+
+    <div style="display:flex;gap:var(--space-3);flexWrap:wrap">
+      <a href="https://github.com/" class="btn btn-secondary">GitHub</a>
+      <a href="https://linkedin.com/" class="btn btn-secondary">LinkedIn</a>
+      <a href="mailto:hello@example.com" class="btn btn-secondary">Email</a>
+    </div>
+
+    <sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+      <p style="fontSize:15px;color:var(--color-accent-2)">{{sentText}}</p>
+    </sc-if>
+    <sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+      <form onSubmit="{{onSubmit}}" style="display:flex;flexDirection:column;gap:var(--space-3);maxWidth:440px">
+        <div class="field">
+          <label>{{labelName}}</label>
+          <input class="input" type="text" required="{{true}}"></input>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input class="input" type="email" required="{{true}}"></input>
+        </div>
+        <div class="field">
+          <label>{{labelMessage}}</label>
+          <textarea class="input" rows="4" required="{{true}}"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">{{labelSend}}</button>
+      </form>
+    </sc-if>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id', sent: false };
+  componentDidMount() {
+    import('./content.js').then((mod) => {
+      this.mod = mod;
+      this.setState({ lang: mod.langHelpers.getLang() });
+    });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  onSubmit = (e) => {
+    e.preventDefault();
+    this.setState({ sent: true });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return {
+      lang: this.state.lang, toggleLang: this.toggleLang, onSubmit: this.onSubmit,
+      sent: this.state.sent, notSent: !this.state.sent,
+      kicker: en ? 'Contact' : 'Kontak',
+      heading: en ? 'Say hi' : 'Sapa aku',
+      desc: en ? 'Find me on GitHub, LinkedIn, or send a message below.' : 'Temukan aku di GitHub, LinkedIn, atau kirim pesan lewat form di bawah.',
+      labelName: en ? 'Name' : 'Nama',
+      labelMessage: en ? 'Message' : 'Pesan',
+      labelSend: en ? 'Send' : 'Kirim',
+      sentText: en ? 'Thanks — this is a demo form, so nothing was actually sent yet.' : 'Terima kasih — ini form demo, jadi belum benar-benar terkirim.'
+    };
+  }
+}
+</script>
+</body>
+</html>

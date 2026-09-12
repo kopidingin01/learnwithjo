@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="tentang" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:680px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box;display:flex;flexDirection:column;gap:var(--space-4)">
+    <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent)">{{kicker}}</span>
+    <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:38px;margin:0;borderTop:3px solid var(--color-text);paddingTop:var(--space-4)">{{heading}}</h1>
+    <p style="fontSize:17px;lineHeight:1.65">{{bio1}}</p>
+    <p style="fontSize:17px;lineHeight:1.65;opacity:0.9">{{bio2}}</p>
+    <div style="display:flex;gap:10px;flexWrap:wrap;marginTop:var(--space-2)">
+      <sc-for list="{{skills}}" as="s" hint-placeholder-count="6">
+        <span class="tag tag-outline">{{s}}</span>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:var(--space-3);marginTop:var(--space-4)">
+      <a href="kontak.dc.html" class="btn btn-primary">{{ctaContact}}</a>
+      <a href="index.dc.html" class="btn btn-secondary">{{ctaHome}}</a>
+    </div>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id' };
+  componentDidMount() {
+    import('./content.js').then((mod) => {
+      this.mod = mod;
+      this.setState({ lang: mod.langHelpers.getLang() });
+    });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return {
+      lang: this.state.lang, toggleLang: this.toggleLang,
+      kicker: en ? 'About' : 'Tentang',
+      heading: en ? 'Hi, I\u2019m Jo.' : 'Halo, aku Jo.',
+      bio1: en ? 'I write Learning with Jo while I learn cyber security, web development, and a few languages at the same time. This site is my public notebook, not a portfolio of finished expertise.' : 'Aku menulis Learning with Jo sambil belajar cyber security, web development, dan beberapa bahasa sekaligus. Situs ini adalah catatan belajar yang terbuka, bukan portofolio keahlian yang sudah selesai.',
+      bio2: en ? 'Most posts here are things I just figured out, written the way I\u2019d explain them to myself a week earlier. Expect it to grow, change, and sometimes get corrected as I learn more.' : 'Kebanyakan tulisan di sini adalah hal yang baru aku pahami, ditulis seperti menjelaskan ke diriku sendiri seminggu yang lalu. Isinya akan terus bertambah, berubah, dan kadang dikoreksi seiring aku belajar lebih banyak.',
+      skills: ['Cyber Security', 'Web Development', 'Web Design', 'Kali Linux', 'Penetration Testing', 'Git & GitHub'],
+      ctaContact: en ? 'Get in touch' : 'Hubungi aku',
+      ctaHome: en ? 'Back to home' : 'Kembali ke beranda'
+    };
+  }
+}
+</script>
+</body>
+</html>

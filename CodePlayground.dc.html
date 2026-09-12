@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flexDirection:column;gap:var(--space-3)">
+  <div style="display:flex;gap:10px;flexWrap:wrap;alignItems:center">
+    <select value="" onChange="{{onLoadExample}}" style="fontSize:13px;padding:8px 10px;borderRadius:var(--radius-md);border:1px solid var(--color-divider);background:var(--color-surface);color:var(--color-text)">
+      <option value="" disabled="{{true}}">{{loadExampleLabel}}</option>
+      <sc-for list="{{examples}}" as="ex" hint-placeholder-count="3">
+        <option value="{{ex.label}}">{{ex.label}}</option>
+      </sc-for>
+    </select>
+    <button class="btn btn-primary" onClick="{{onRun}}" style="fontSize:13px">{{runLabel}}</button>
+    <button class="btn btn-secondary" onClick="{{onCopy}}" style="fontSize:13px">{{copyLabel}}</button>
+    <button class="btn btn-secondary" onClick="{{onReset}}" style="fontSize:13px">{{resetLabel}}</button>
+    <button class="btn btn-secondary" onClick="{{onClear}}" style="fontSize:13px">{{clearLabel}}</button>
+    <sc-if value="{{copied}}" hint-placeholder-val="{{false}}"><span style="fontSize:13px;color:var(--color-accent-2);alignSelf:center">{{copiedLabel}}</span></sc-if>
+  </div>
+  <div style="display:grid;gridTemplateColumns:minmax(0,1fr) minmax(0,1fr);gap:var(--space-4)">
+    <div style="display:flex;flexDirection:column;gap:var(--space-3);minWidth:0">
+      <div style="display:flex;flexDirection:column;gap:4px">
+        <label style="fontSize:12px;opacity:0.65">HTML</label>
+        <textarea value="{{html}}" onChange="{{onHtmlChange}}" style="width:100%;boxSizing:border-box;minHeight:90px;fontFamily:monospace;fontSize:13px;padding:10px;border:1px solid var(--color-divider);borderRadius:var(--radius-md);background:var(--color-surface);color:var(--color-text);resize:vertical"></textarea>
+      </div>
+      <div style="display:flex;flexDirection:column;gap:4px">
+        <label style="fontSize:12px;opacity:0.65">CSS</label>
+        <textarea value="{{css}}" onChange="{{onCssChange}}" style="width:100%;boxSizing:border-box;minHeight:160px;fontFamily:monospace;fontSize:13px;padding:10px;border:1px solid var(--color-divider);borderRadius:var(--radius-md);background:var(--color-surface);color:var(--color-text);resize:vertical"></textarea>
+      </div>
+    </div>
+    <div style="display:flex;flexDirection:column;gap:4px;minWidth:0">
+      <label style="fontSize:12px;opacity:0.65">{{previewLabel}}</label>
+      <iframe srcDoc="{{srcDoc}}" style="width:100%;flex:1;minHeight:270px;border:1px solid var(--color-divider);borderRadius:var(--radius-md);background:#ffffff"></iframe>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { html: '', css: '', copied: false, srcDoc: '' };
+  examplesData = [
+    { label: 'Card sederhana', html: '<div class="card">\n  <h3>Judul Kartu</h3>\n  <p>Coba ubah warna, radius, atau spacing di CSS.</p>\n</div>', css: '.card {\n  width: 240px;\n  padding: 20px;\n  border-radius: 12px;\n  background: #eef2f6;\n  box-shadow: 0 2px 10px rgba(0,0,0,0.08);\n  font-family: sans-serif;\n}\n.card h3 {\n  margin: 0 0 8px;\n  color: #3a4729;\n}' },
+    { label: 'Flexbox centering', html: '<div class="box">Hello Flexbox</div>', css: '.box {\n  height: 160px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: #fffbe6;\n  border: 1px solid #e0c200;\n  font-family: sans-serif;\n}' },
+    { label: 'Tombol dengan hover', html: '<button class="btn">Klik saya</button>', css: '.btn {\n  padding: 10px 20px;\n  border: none;\n  border-radius: 8px;\n  background: #3a4729;\n  color: white;\n  font-size: 14px;\n  cursor: pointer;\n  transition: background 0.2s;\n}\n.btn:hover {\n  background: #647a49;\n}' }
+  ];
+  componentDidMount() {
+    const html = this.props.initialHtml || '<div class="box">Hello CSS</div>';
+    const css = this.props.initialCss || '.box {\n  width: 200px;\n  height: 100px;\n  background: #3a4729;\n  color: white;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}';
+    this.setState({ html, css, srcDoc: `<style>${css}</style>${html}` });
+  }
+  onHtmlChange = (e) => this.setState({ html: e.target.value });
+  onCssChange = (e) => this.setState({ css: e.target.value });
+  onRun = () => this.setState({ srcDoc: `<style>${this.state.css}</style>${this.state.html}` });
+  onReset = () => {
+    const html = this.props.initialHtml || '<div class="box">Hello CSS</div>';
+    const css = this.props.initialCss || '';
+    this.setState({ html, css, srcDoc: `<style>${css}</style>${html}` });
+  };
+  onClear = () => this.setState({ html: '', css: '', srcDoc: '' });
+  onLoadExample = (e) => {
+    const ex = this.examplesData.find((x) => x.label === e.target.value);
+    if (!ex) return;
+    this.setState({ html: ex.html, css: ex.css, srcDoc: `<style>${ex.css}</style>${ex.html}` });
+  };
+  onCopy = () => {
+    const text = `<style>\n${this.state.css}\n</style>\n${this.state.html}`;
+    try { navigator.clipboard.writeText(text); } catch (e) {}
+    this.setState({ copied: true });
+    setTimeout(() => this.setState({ copied: false }), 1500);
+  };
+  renderVals() {
+    const en = (this.props.lang || 'id') === 'en';
+    return {
+      html: this.state.html, css: this.state.css, copied: this.state.copied, srcDoc: this.state.srcDoc,
+      examples: this.examplesData,
+      onHtmlChange: this.onHtmlChange, onCssChange: this.onCssChange, onRun: this.onRun, onReset: this.onReset, onClear: this.onClear, onCopy: this.onCopy, onLoadExample: this.onLoadExample,
+      runLabel: en ? 'Run' : 'Jalankan', resetLabel: 'Reset', clearLabel: en ? 'Clear' : 'Bersihkan',
+      copyLabel: en ? 'Copy code' : 'Copy kode', loadExampleLabel: en ? '\ud83d\udcc2 Load example\u2026' : '\ud83d\udcc2 Muat contoh\u2026',
+      copiedLabel: en ? 'Copied!' : 'Tersalin!', previewLabel: en ? 'Live preview' : 'Preview langsung'
+    };
+  }
+}
+</script>
+</body>
+</html>

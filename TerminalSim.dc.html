@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flexDirection:column;gap:var(--space-3)">
+  <div style="background:#1a1a1a;borderRadius:var(--radius-md);padding:var(--space-3);fontFamily:monospace;fontSize:13px;color:#e8e8e8;display:flex;flexDirection:column;gap:6px;minHeight:220px;maxHeight:340px;overflowY:auto">
+    <sc-for list="{{lines}}" as="line" hint-placeholder-count="3">
+      <div style="color:{{line.color}};whiteSpace:pre-wrap;lineHeight:1.5">{{line.prefix}}{{line.text}}</div>
+    </sc-for>
+  </div>
+  <div style="display:flex;gap:8px">
+    <span style="fontFamily:monospace;fontSize:14px;color:var(--color-accent);alignSelf:center">$</span>
+    <input value="{{input}}" onChange="{{onInputChange}}" onKeyDown="{{onKeyDown}}" placeholder="{{placeholder}}" style="flex:1;fontFamily:monospace;fontSize:14px;padding:8px 10px;border:1px solid var(--color-divider);borderRadius:var(--radius-md);background:var(--color-bg);color:var(--color-text)"></input>
+    <button class="btn btn-secondary" onClick="{{onClear}}" style="fontSize:13px">{{clearLabel}}</button>
+  </div>
+  <p style="fontSize:12px;opacity:0.6;margin:0">{{hintLabel}}</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { input: '', lines: [] };
+  componentDidMount() {
+    const en = (this.props.lang || 'id') === 'en';
+    this.setState({ lines: [{ prefix: '', text: en ? '# Type a command below and press Enter (see hint for examples)' : '# Ketik salah satu command di bawah lalu tekan Enter (lihat hint contohnya)', color: '#8fa3b0' }] });
+  }
+  onInputChange = (e) => this.setState({ input: e.target.value });
+  onClear = () => this.setState({ lines: [] });
+  runCommand = () => {
+    const typed = this.state.input.trim();
+    if (!typed) return;
+    const commands = this.props.commands || [];
+    const firstWord = typed.split(/\s+/)[0].toLowerCase();
+    const match = commands.find((c) => c.cmd.toLowerCase().split(/\s+/)[0] === firstWord || c.cmd.toLowerCase() === typed.toLowerCase());
+    const en = (this.props.lang || 'id') === 'en';
+    const newLines = [...this.state.lines, { prefix: '$ ', text: typed, color: '#e8e8e8' }];
+    if (match) {
+      newLines.push({ prefix: '', text: match.desc, color: '#7ad19a' });
+    } else {
+      newLines.push({ prefix: '', text: en ? `command not found — try one of: ${commands.slice(0, 4).map(c => c.cmd).join(', ')}` : `command tidak dikenali — coba salah satu: ${commands.slice(0, 4).map(c => c.cmd).join(', ')}`, color: '#e08a8a' });
+    }
+    this.setState({ lines: newLines, input: '' });
+  };
+  onKeyDown = (e) => { if (e.key === 'Enter') this.runCommand(); };
+  renderVals() {
+    const en = (this.props.lang || 'id') === 'en';
+    const commands = this.props.commands || [];
+    return {
+      lines: this.state.lines, input: this.state.input,
+      onInputChange: this.onInputChange, onKeyDown: this.onKeyDown, onClear: this.onClear,
+      placeholder: en ? 'type a command…' : 'ketik command…',
+      clearLabel: en ? 'Clear' : 'Bersihkan',
+      hintLabel: (en ? 'Try: ' : 'Coba: ') + commands.slice(0, 3).map(c => c.cmd).join(' · ')
+    };
+  }
+}
+</script>
+</body>
+</html>

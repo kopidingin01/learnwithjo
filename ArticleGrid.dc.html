@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flexDirection:column;gap:var(--space-4)">
+  <div style="display:flex;gap:10px;flexWrap:wrap">
+    <sc-for list="{{pills}}" as="pill" hint-placeholder-count="4">
+      <button onClick="{{pill.onClick}}" style="display:inline-flex;alignItems:center;padding:6px 14px;borderRadius:999px;fontSize:13px;cursor:pointer;border:1px solid {{pill.border}};background:{{pill.bg}};color:{{pill.color}}">{{pill.label}}</button>
+    </sc-for>
+  </div>
+  <sc-if value="{{hasArticles}}" hint-placeholder-val="{{true}}">
+    <div style="display:grid;gridTemplateColumns:repeat(auto-fill, minmax(260px, 1fr));gap:var(--space-4)">
+      <sc-for list="{{filtered}}" as="item" hint-placeholder-count="3">
+        <a class="card elev-sm" href="{{item.href}}" style="textDecoration:none;color:var(--color-text)">
+          <span class="card-kicker">{{item.tag}}</span>
+          <h3 class="card-title">{{item.title}}</h3>
+          <p class="card-body">{{item.excerpt}}</p>
+          <div class="card-meta"><span>{{item.date}}</span><span>·</span><span>{{item.readTime}}</span></div>
+        </a>
+      </sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <p style="opacity:0.6;fontSize:14px">{{emptyText}}</p>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { activeTag: null };
+  renderVals() {
+    const lang = this.props.lang || 'id';
+    const articles = this.props.articles || [];
+    const tags = this.props.tags || [];
+    const allLabel = lang === 'en' ? 'All' : 'Semua';
+    const emptyText = lang === 'en' ? 'No articles in this topic yet.' : 'Belum ada artikel di topik ini.';
+    const active = this.state.activeTag;
+    const filtered = active ? articles.filter(a => a.tag === active) : articles;
+    const makePill = (key, label) => {
+      const on = key === active;
+      return {
+        key, label,
+        onClick: () => this.setState({ activeTag: key }),
+        bg: on ? 'var(--color-accent)' : 'transparent',
+        color: on ? 'var(--color-bg)' : 'var(--color-accent-700)',
+        border: on ? 'transparent' : 'var(--color-accent)'
+      };
+    };
+    const pills = [makePill(null, allLabel), ...tags.map(t => makePill(t, t))];
+    return { pills, filtered, hasArticles: filtered.length > 0, isEmpty: filtered.length === 0, emptyText };
+  }
+}
+</script>
+</body>
+</html>

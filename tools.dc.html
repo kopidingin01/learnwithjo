@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="tools" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:1180px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box;display:flex;flexDirection:column;gap:var(--space-6)">
+    <section style="display:flex;flexDirection:column;gap:var(--space-2);maxWidth:640px;borderTop:3px solid var(--color-accent);paddingTop:var(--space-4)">
+      <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent)">{{kicker}}</span>
+      <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:36px;margin:0">{{title}}</h1>
+      <p style="fontSize:16px;opacity:0.8">{{desc}}</p>
+    </section>
+    <table class="table">
+      <thead>
+        <tr><th>Tool</th><th>{{colCategory}}</th><th>{{colUse}}</th><th>Level</th></tr>
+      </thead>
+      <tbody>
+        <sc-for list="{{tools}}" as="tool" hint-placeholder-count="8">
+          <tr>
+            <td style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight)">{{tool.name}}</td>
+            <td><span class="tag tag-outline">{{tool.category}}</span></td>
+            <td>{{tool.use}}</td>
+            <td>{{tool.level}}</td>
+          </tr>
+        </sc-for>
+      </tbody>
+    </table>
+
+    <div style="display:flex;flexDirection:column;gap:var(--space-6)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">{{detailTitle}}</h2>
+      <sc-for list="{{tools}}" as="tool" hint-placeholder-count="8">
+        <div style="display:flex;flexDirection:column;gap:var(--space-2);paddingBottom:var(--space-5);borderBottom:1px solid var(--color-divider)">
+          <div style="display:flex;alignItems:center;gap:10px;flexWrap:wrap">
+            <h3 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:19px;margin:0">{{tool.name}}</h3>
+            <span class="tag tag-outline">{{tool.category}}</span>
+            <span class="tag tag-neutral">{{tool.level}}</span>
+          </div>
+          <p style="fontSize:15px;lineHeight:1.6;opacity:0.85;margin:0;maxWidth:680px">{{tool.definition}}</p>
+          <div style="display:flex;flexDirection:column;gap:4px;marginTop:4px">
+            <span style="fontSize:11px;letterSpacing:0.08em;textTransform:uppercase;opacity:0.55">Command</span>
+            <pre style="margin:0;fontFamily:monospace;fontSize:13px;padding:10px 12px;background:var(--color-surface);borderRadius:var(--radius-md);color:var(--color-accent-2);overflow:auto;whiteSpace:pre-wrap">{{tool.command}}</pre>
+          </div>
+          <div style="display:flex;flexDirection:column;gap:4px">
+            <span style="fontSize:11px;letterSpacing:0.08em;textTransform:uppercase;opacity:0.55">{{outputLabel}}</span>
+            <pre style="margin:0;fontFamily:monospace;fontSize:12.5px;lineHeight:1.6;padding:12px;background:#1a1a1a;color:#c8e6c9;borderRadius:var(--radius-md);overflow:auto;whiteSpace:pre-wrap">{{tool.output}}</pre>
+          </div>
+        </div>
+      </sc-for>
+      <p style="fontSize:13px;opacity:0.6;margin:0">{{ethicsNote}}</p>
+    </div>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id', tools: [] };
+  componentDidMount() {
+    import('./content.js').then((mod) => {
+      this.mod = mod;
+      this.setState({ lang: mod.langHelpers.getLang(), tools: mod.tools });
+    });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return {
+      lang: this.state.lang, toggleLang: this.toggleLang, tools: this.state.tools,
+      kicker: en ? 'Reference' : 'Referensi',
+      title: en ? 'Kali Linux Tools' : 'Tools Kali Linux',
+      desc: en ? 'A running list of tools I actually use, updated as I try new ones.' : 'Daftar tools yang benar-benar aku pakai, diupdate seiring aku coba yang baru.',
+      colCategory: en ? 'Category' : 'Kategori',
+      colUse: en ? 'What it does' : 'Kegunaan',
+      detailTitle: en ? 'What each tool actually does' : 'Kegunaan tiap tools, secara detail',
+      outputLabel: en ? 'Example output' : 'Contoh output',
+      ethicsNote: en ? 'All examples above are for a legal lab/target you own or have written permission to test — never run these against a target without authorization.' : 'Semua contoh di atas untuk lab/target legal milik sendiri atau yang sudah ada izin tertulis — jangan pernah jalankan ke target tanpa izin.'
+    };
+  }
+}
+</script>
+</body>
+</html>
