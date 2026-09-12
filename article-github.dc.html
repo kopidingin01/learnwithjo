@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:720px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box">
+    <a href="github-git.dc.html" style="fontSize:13px;color:var(--color-accent-2)">{{backLabel}}</a>
+    <article style="display:flex;flexDirection:column;gap:var(--space-4);marginTop:var(--space-4)">
+      <div style="display:flex;flexDirection:column;gap:var(--space-2)">
+        <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">GitHub · Git Dasar</span>
+        <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:38px;lineHeight:1.15;margin:0">Git Init Sampai Push: Alur yang Sering Dilupakan</h1>
+        <div style="fontSize:13px;opacity:0.6;display:flex;gap:10px"><span>7 Sep 2026</span><span>·</span><span>6 menit baca</span><span>·</span><span>Jo</span></div>
+      </div>
+      <div style="aspectRatio:16/9;position:relative;overflow:hidden;borderRadius:var(--radius-md)">
+        <image-slot id="cover-github-flow" placeholder="diagram working directory → staging → repository → remote"></image-slot>
+      </div>
+
+      <p style="fontSize:17px;lineHeight:1.65">Aku bisa mengetik git add, git commit, git push tanpa berpikir panjang sekarang. Tapi butuh waktu cukup lama sebelum aku benar-benar paham APA yang sebenarnya terjadi di balik ketiga command itu — dan justru itu yang bikin aku sering panik waktu ada error yang tidak familiar.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Tiga area: working directory, staging, repository</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Working directory adalah folder tempat kamu benar-benar mengedit file — ini yang kamu lihat di code editor. Staging area (disebut juga "index") adalah tempat perantara: <code>git add</code> memindahkan perubahan dari working directory ke sini, semacam memilih dulu perubahan mana yang mau disertakan sebelum benar-benar disimpan permanen. Repository adalah tempat histori permanen itu tersimpan — <code>git commit</code> mengambil semua yang ada di staging area dan mengubahnya jadi satu snapshot bertanda hash unik di repository.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Kenapa commit message itu penting</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Setiap commit menyimpan pesan yang menjelaskan apa dan kenapa perubahan itu dibuat. Ini terasa remeh sampai suatu hari kamu butuh melacak kapan sebuah bug mulai muncul lewat <code>git log</code> — commit dengan pesan "update" atau "fix" tidak memberi petunjuk apa pun, sementara pesan seperti "fix login bug yang mencegah reset password" langsung menunjukkan arah pencarian.</p>
+
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:24px;margin:0">Push: mempublikasikan checkpoint-mu</h2>
+      <p style="fontSize:16px;lineHeight:1.65;opacity:0.9">Semua commit yang dibuat sejauh ini masih hidup di komputer lokal saja. <code>git push</code> adalah langkah yang mengunggah commit-commit itu ke remote repository seperti GitHub, sehingga bisa dilihat dan dikerjakan bersama orang lain. Sebelum push, praktik yang baik adalah <code>git pull</code> dulu untuk menarik perubahan terbaru dari remote — supaya kamu tidak mempublikasikan sesuatu yang sudah "ketinggalan" versi.</p>
+
+      <div style="display:flex;gap:10px;flexWrap:wrap;marginTop:var(--space-2)">
+        <span class="tag tag-accent-2">Git Dasar</span><span class="tag tag-neutral">Version Control</span>
+      </div>
+
+      <div style="marginTop:var(--space-4);paddingTop:var(--space-4);borderTop:1px solid var(--color-divider);display:flex;flexDirection:column;gap:8px">
+        <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;opacity:0.6">{{refLabel}}</span>
+        <a href="https://git-scm.com/docs/git-push" style="fontSize:14px">git-scm.com — git-push Official Documentation</a>
+        <a href="https://www.atlassian.com/git/tutorials/syncing/git-push" style="fontSize:14px">Atlassian Git Tutorial — Git Push</a>
+        <a href="https://graphite.com/guides/git-add-commit-push" style="fontSize:14px">Graphite — Git add, commit, and push</a>
+      </div>
+    </article>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id' };
+  componentDidMount() {
+    import('./content.js').then((mod) => { this.mod = mod; this.setState({ lang: mod.langHelpers.getLang() }); });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return { lang: this.state.lang, toggleLang: this.toggleLang, backLabel: en ? '\u2190 Back to GitHub' : '\u2190 Kembali ke GitHub', refLabel: en ? 'Sources' : 'Referensi' };
+  }
+}
+</script>
+</body>
+</html>

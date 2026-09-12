@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<nav class="nav" style="background:var(--color-bg);borderBottom:1px solid var(--color-divider);maxWidth:1180px;margin:0 auto;paddingLeft:var(--space-4);paddingRight:var(--space-4)">
+  <a href="index.dc.html" class="nav-brand" style="color:var(--color-text)">Learning with Jo</a>
+  <div style="display:flex;alignItems:center;gap:24px;flex:1;justifyContent:flex-end;flexWrap:wrap">
+    <a href="index.dc.html" aria-current="{{homeCurrent}}">{{homeLabel}}</a>
+    <div style="position:relative" onMouseEnter="{{openKategori}}" onMouseLeave="{{closeMenu}}">
+      <span style="cursor:pointer;fontSize:14px">{{kategoriLabel}} ▾</span>
+      <sc-if value="{{kategoriOpen}}" hint-placeholder-val="{{false}}">
+        <div style="position:absolute;top:100%;right:0;background:var(--color-surface);boxShadow:var(--shadow-md);borderRadius:var(--radius-md);padding:var(--space-2);display:flex;flexDirection:column;minWidth:200px;zIndex:60">
+          <a href="cyber-security.dc.html" aria-current="{{cyberCurrent}}" style="display:block;padding:8px 10px">Cyber Security</a>
+          <a href="web-development.dc.html" aria-current="{{webdevCurrent}}" style="display:block;padding:8px 10px">Web Development</a>
+          <a href="web-design.dc.html" aria-current="{{webdesignCurrent}}" style="display:block;padding:8px 10px">Web Design</a>
+          <a href="kali-linux.dc.html" aria-current="{{kaliCurrent}}" style="display:block;padding:8px 10px">Kali Linux</a>
+          <a href="penetration-testing.dc.html" aria-current="{{pentestCurrent}}" style="display:block;padding:8px 10px">Penetration Testing</a>
+          <a href="github-git.dc.html" aria-current="{{githubCurrent}}" style="display:block;padding:8px 10px">GitHub</a>
+          <a href="tools.dc.html" aria-current="{{toolsCurrent}}" style="display:block;padding:8px 10px">{{toolsLabel}}</a>
+        </div>
+      </sc-if>
+    </div>
+    <div style="position:relative" onMouseEnter="{{openBahasa}}" onMouseLeave="{{closeMenu}}">
+      <span style="cursor:pointer;fontSize:14px">{{bahasaLabel}} ▾</span>
+      <sc-if value="{{bahasaOpen}}" hint-placeholder-val="{{false}}">
+        <div style="position:absolute;top:100%;right:0;background:var(--color-surface);boxShadow:var(--shadow-md);borderRadius:var(--radius-md);padding:var(--space-2);display:flex;flexDirection:column;minWidth:180px;zIndex:60">
+          <a href="bahasa.dc.html" aria-current="{{bahasaHubCurrent}}" style="display:block;padding:8px 10px">{{bahasaLabel}}</a>
+          <a href="bahasa-inggris.dc.html" aria-current="{{ieltsCurrent}}" style="display:block;padding:8px 10px">English (IELTS)</a>
+          <a href="bahasa-spanish.dc.html" aria-current="{{spanishCurrent}}" style="display:block;padding:8px 10px">Español</a>
+          <a href="bahasa-deutsch.dc.html" aria-current="{{deutschCurrent}}" style="display:block;padding:8px 10px">Deutsch</a>
+        </div>
+      </sc-if>
+    </div>
+    <a href="tentang.dc.html" aria-current="{{aboutCurrent}}">{{aboutLabel}}</a>
+    <a href="kontak.dc.html" aria-current="{{contactCurrent}}">{{contactLabel}}</a>
+    <button onClick="{{onToggleLang}}" class="btn btn-secondary" style="padding:6px 12px;fontSize:12px">{{langToggleText}}</button>
+  </div>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { openMenu: null };
+  renderVals() {
+    const lang = this.props.lang || 'id';
+    const t = lang === 'en'
+      ? { home: 'Home', kategori: 'Categories', bahasa: 'Languages', tentang: 'About', kontak: 'Contact', tools: 'Tools' }
+      : { home: 'Beranda', kategori: 'Kategori', bahasa: 'Bahasa', tentang: 'Tentang', kontak: 'Kontak', tools: 'Tools' };
+    const active = this.props.active;
+    const cur = (key) => active === key ? 'page' : undefined;
+    return {
+      homeLabel: t.home, kategoriLabel: t.kategori, bahasaLabel: t.bahasa, aboutLabel: t.tentang, contactLabel: t.kontak, toolsLabel: t.tools,
+      langToggleText: lang === 'en' ? 'ID' : 'EN',
+      onToggleLang: this.props.onToggleLang,
+      kategoriOpen: this.state.openMenu === 'kategori',
+      bahasaOpen: this.state.openMenu === 'bahasa',
+      openKategori: () => this.setState({ openMenu: 'kategori' }),
+      openBahasa: () => this.setState({ openMenu: 'bahasa' }),
+      closeMenu: () => this.setState({ openMenu: null }),
+      homeCurrent: cur('home'), cyberCurrent: cur('cyber-security'), webdevCurrent: cur('web-development'),
+      webdesignCurrent: cur('web-design'), kaliCurrent: cur('kali-linux'), pentestCurrent: cur('penetration-testing'),
+      githubCurrent: cur('github-git'), toolsCurrent: cur('tools'), bahasaHubCurrent: cur('bahasa'),
+      ieltsCurrent: cur('bahasa-inggris'), spanishCurrent: cur('bahasa-spanish'), deutschCurrent: cur('bahasa-deutsch'),
+      aboutCurrent: cur('tentang'), contactCurrent: cur('kontak')
+    };
+  }
+}
+</script>
+</body>
+</html>

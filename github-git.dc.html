@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="github-git" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:1180px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box;display:flex;flexDirection:column;gap:var(--space-6)">
+    <section style="display:flex;flexDirection:column;gap:var(--space-2);maxWidth:640px;borderTop:3px solid var(--color-accent-2);paddingTop:var(--space-4)">
+      <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">{{kicker}}</span>
+      <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:36px;margin:0">GitHub</h1>
+      <p style="fontSize:16px;opacity:0.8">{{desc}}</p>
+    </section>
+    <dc-import name="DashStats" stats="{{stats}}" hint-size="100%,80px"></dc-import>
+    <nav style="display:flex;gap:10px;flexWrap:wrap">
+      <a href="#materi" class="tag tag-outline" style="textDecoration:none">{{navMateri}}</a>
+      <a href="#playground" class="tag tag-outline" style="textDecoration:none">{{navPlayground}}</a>
+      <a href="#quiz" class="tag tag-outline" style="textDecoration:none">{{navQuiz}}</a>
+    </nav>
+    <div id="materi">
+      <dc-import name="MateriDetail" storage-key="lwj_progress_github" concept-nodes="{{materiConceptNodes}}" concept-mindset="{{materiConceptMindset}}" steps="{{materiSteps}}" terms="{{materiTerms}}" commands="{{materiCommands}}" project="{{materiProject}}" lang="{{lang}}" hint-size="100%,600px"></dc-import>
+    </div>
+    <div id="playground" style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{playgroundTitle}}</h2>
+      <p style="fontSize:14px;opacity:0.7;margin:0">{{playgroundDesc}}</p>
+      <dc-import name="TerminalSim" commands="{{materiCommands}}" lang="{{lang}}" hint-size="100%,300px"></dc-import>
+    </div>
+    <div id="quiz" style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{quizTitle}}</h2>
+      <dc-import name="QuizWidget" questions="{{quiz}}" lang="{{lang}}" hint-size="100%,260px"></dc-import>
+    </div>
+    <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{articlesTitle}}</h2>
+    <dc-import name="ArticleGrid" articles="{{articles}}" tags="{{tags}}" lang="{{lang}}" hint-size="100%,400px"></dc-import>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id', articles: [], tags: [], materi: { steps: [], terms: [], project: {} }, quiz: [] };
+  componentDidMount() {
+    import('./content.js').then((mod) => {
+      this.mod = mod;
+      this.setState({ lang: mod.langHelpers.getLang(), articles: mod.articles.github, tags: mod.tags.github, materi: mod.materi.github, quiz: mod.quiz.github });
+    });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return {
+      lang: this.state.lang, toggleLang: this.toggleLang, articles: this.state.articles, tags: this.state.tags,
+      materiSteps: this.state.materi.steps, materiTerms: this.state.materi.terms, materiCommands: this.state.materi.commands, materiProject: this.state.materi.project,
+      materiConceptNodes: this.state.materi.concept ? this.state.materi.concept.nodes : [], materiConceptMindset: this.state.materi.concept ? this.state.materi.concept.mindset : '',
+      articlesTitle: en ? 'Articles' : 'Artikel',
+      kicker: en ? 'Category' : 'Kategori',
+      desc: en ? 'Git from the first command to collaborating through pull requests.' : 'Git dari command pertama sampai kolaborasi lewat pull request.',
+      quiz: this.state.quiz,
+      stats: [
+        { value: (this.state.materi.steps || []).length, label: en ? 'Lessons' : 'Materi' },
+        { value: (this.state.materi.terms || []).length, label: en ? 'Terms' : 'Istilah' },
+        { value: en ? 'Live' : 'Interaktif', label: 'Playground' },
+        { value: en ? 'Beginner' : 'Pemula', label: en ? 'Friendly' : 'Ramah' }
+      ],
+      navMateri: en ? 'Learning path' : 'Materi', navPlayground: 'Playground', navQuiz: 'Quiz',
+      playgroundTitle: en ? 'Terminal playground' : 'Playground terminal',
+      playgroundDesc: en ? 'Try the commands above in this simulated terminal.' : 'Coba command-command di atas lewat simulasi terminal ini.',
+      quizTitle: en ? 'Quick quiz' : 'Kuis singkat'
+    };
+  }
+}
+</script>
+</body>
+</html>

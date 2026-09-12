@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flexDirection:column;gap:var(--space-3)">
+  <div style="display:flex;gap:10px;flexWrap:wrap">
+    <button class="btn btn-primary" onClick="{{onRun}}" style="fontSize:13px">{{runLabel}}</button>
+    <button class="btn btn-secondary" onClick="{{onReset}}" style="fontSize:13px">Reset</button>
+    <button class="btn btn-secondary" onClick="{{onClear}}" style="fontSize:13px">{{clearLabel}}</button>
+  </div>
+  <div style="display:grid;gridTemplateColumns:minmax(0,1fr) minmax(0,1fr);gap:var(--space-4)">
+    <div style="display:flex;flexDirection:column;gap:4px;minWidth:0">
+      <label style="fontSize:12px;opacity:0.65">JavaScript</label>
+      <textarea value="{{code}}" onChange="{{onCodeChange}}" style="width:100%;boxSizing:border-box;minHeight:220px;fontFamily:monospace;fontSize:13px;padding:10px;border:1px solid var(--color-divider);borderRadius:var(--radius-md);background:var(--color-surface);color:var(--color-text);resize:vertical"></textarea>
+    </div>
+    <div style="display:flex;flexDirection:column;gap:4px;minWidth:0">
+      <label style="fontSize:12px;opacity:0.65">{{outputLabel}}</label>
+      <iframe srcDoc="{{srcDoc}}" style="width:100%;flex:1;minHeight:220px;border:1px solid var(--color-divider);borderRadius:var(--radius-md);background:#ffffff"></iframe>
+    </div>
+  </div>
+  <p style="fontSize:12px;opacity:0.55;margin:0">{{hintLabel}}</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const TAG_OPEN = String.fromCharCode(60) + 'script>';
+const TAG_CLOSE = String.fromCharCode(60) + '/script>';
+
+class Component extends DCLogic {
+  state = { code: '', srcDoc: '' };
+  buildSrcDoc(code) {
+    const safeCode = code.split(TAG_CLOSE).join(String.fromCharCode(60) + '\\/script>');
+    const demoHtml = '<div style="font-family:sans-serif;padding:8px;border-bottom:1px solid #ddd">' +
+      '<button id="btn" style="padding:6px 12px;cursor:pointer">Klik saya</button>' +
+      '<p id="txt" style="display:inline;margin-left:10px">Halo</p>' +
+      '</div>' +
+      '<div id="console" style="font-family:monospace;font-size:12px;background:#1a1a1a;color:#c8e6c9;padding:10px;white-space:pre-wrap;min-height:90px"></div>';
+    const scriptBody = "const out = document.getElementById('console');" +
+      "console.log = function(){ const args = Array.prototype.slice.call(arguments); out.textContent += args.map(function(a){ return typeof a === 'object' ? JSON.stringify(a) : String(a); }).join(' ') + String.fromCharCode(10); };" +
+      "try { " + safeCode + " } catch (e) { out.textContent += 'Error: ' + e.message + String.fromCharCode(10); }";
+    return demoHtml + TAG_OPEN + scriptBody + TAG_CLOSE;
+  }
+  componentDidMount() {
+    const code = this.props.initialCode || 'console.log("Halo dunia!");';
+    this.setState({ code, srcDoc: this.buildSrcDoc(code) });
+  }
+  onCodeChange = (e) => this.setState({ code: e.target.value });
+  onRun = () => this.setState({ srcDoc: this.buildSrcDoc(this.state.code) });
+  onReset = () => {
+    const code = this.props.initialCode || '';
+    this.setState({ code, srcDoc: this.buildSrcDoc(code) });
+  };
+  onClear = () => this.setState({ code: '', srcDoc: this.buildSrcDoc('') });
+  renderVals() {
+    const en = (this.props.lang || 'id') === 'en';
+    return {
+      code: this.state.code, srcDoc: this.state.srcDoc,
+      onCodeChange: this.onCodeChange, onRun: this.onRun, onReset: this.onReset, onClear: this.onClear,
+      runLabel: en ? 'Run' : 'Jalankan', clearLabel: en ? 'Clear' : 'Bersihkan',
+      outputLabel: en ? 'Output / Console' : 'Output / Console',
+      hintLabel: en ? 'The preview has a demo #btn and #txt element ready for DOM/event examples.' : 'Preview sudah punya elemen demo #btn dan #txt untuk contoh DOM/event.'
+    };
+  }
+}
+</script>
+</body>
+</html>

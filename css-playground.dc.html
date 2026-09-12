@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="web-development" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:1000px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box;display:flex;flexDirection:column;gap:var(--space-8)">
+    <a href="web-development.dc.html" style="fontSize:13px;color:var(--color-accent)">{{backLabel}}</a>
+    <div style="display:flex;flexDirection:column;gap:var(--space-2);borderTop:3px solid var(--color-accent-2);paddingTop:var(--space-4)">
+      <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">{{kicker}}</span>
+      <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:36px;margin:0">{{title}}</h1>
+      <p style="fontSize:16px;opacity:0.8;maxWidth:640px">{{desc}}</p>
+    </div>
+
+    <nav style="display:flex;gap:8px;flexWrap:wrap">
+      <sc-for list="{{navItems}}" as="n" hint-placeholder-count="10">
+        <a href="{{n.href}}" class="tag tag-outline" style="textDecoration:none;whiteSpace:nowrap">{{n.label}}</a>
+      </sc-for>
+    </nav>
+
+    <sc-for list="{{topics}}" as="t" hint-placeholder-count="8">
+      <section id="{{t.key}}" style="display:flex;flexDirection:column;gap:var(--space-3)">
+        <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{t.label}}</h2>
+        <p style="fontSize:14px;lineHeight:1.6;opacity:0.8;maxWidth:640px">{{t.explanation}}</p>
+        <dc-import name="CodePlayground" initial-html="{{t.initialHtml}}" initial-css="{{t.initialCss}}" lang="{{lang}}" hint-size="100%,380px"></dc-import>
+      </section>
+    </sc-for>
+
+    <section id="cheatsheet" style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{cheatTitle}}</h2>
+      <p style="fontSize:14px;lineHeight:1.6;opacity:0.8;maxWidth:640px">{{cheatDesc}}</p>
+      <dc-import name="CssCheatSheet" rows="{{cheatRows}}" lang="{{lang}}" hint-size="100%,500px"></dc-import>
+    </section>
+
+    <section id="oneminute" style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{oneMinuteTitle}}</h2>
+      <p style="fontSize:14px;lineHeight:1.6;opacity:0.8;maxWidth:640px">{{oneMinuteDesc}}</p>
+      <dc-import name="OneMinuteCards" cards="{{oneMinuteCards}}" lang="{{lang}}" hint-size="100%,300px"></dc-import>
+    </section>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id', topics: [], cheatRows: [], oneMinuteCards: [] };
+  componentDidMount() {
+    import('./content.js').then((mod) => {
+      this.mod = mod;
+      this.setState({ lang: mod.langHelpers.getLang(), topics: mod.cssPlayground.topics, cheatRows: mod.cssPlayground.cheatSheet, oneMinuteCards: mod.cssPlayground.oneMinute });
+    });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    const navItems = [...this.state.topics.map((t) => ({ href: '#' + t.key, label: t.label })), { href: '#cheatsheet', label: 'Cheat Sheet' }, { href: '#oneminute', label: en ? 'CSS in 1 Minute' : 'CSS dalam 1 Menit' }];
+    return {
+      lang: this.state.lang, toggleLang: this.toggleLang, topics: this.state.topics, navItems,
+      cheatRows: this.state.cheatRows, oneMinuteCards: this.state.oneMinuteCards,
+      backLabel: en ? '\u2190 Back to Web Development' : '\u2190 Kembali ke Web Development',
+      kicker: en ? 'CSS deep dive' : 'Pendalaman CSS',
+      title: en ? 'CSS Playground' : 'Playground CSS',
+      desc: en ? 'Nine CSS topics, each with a short explanation and its own live playground \u2014 plus a searchable cheat sheet and 12 one-minute concept cards.' : 'Sembilan topik CSS, masing-masing dengan penjelasan singkat dan playground live sendiri \u2014 plus cheat sheet dan 12 kartu konsep singkat.',
+      cheatTitle: en ? 'CSS Cheat Sheet' : 'CSS Cheat Sheet',
+      cheatDesc: en ? 'The most commonly used CSS properties. Filter by category, then copy the example.' : 'Property CSS yang paling sering dipakai. Filter per kategori, lalu copy contohnya.',
+      oneMinuteTitle: en ? 'CSS in 1 Minute' : 'CSS dalam 1 Menit',
+      oneMinuteDesc: en ? '12 key CSS concepts as quick cards \u2014 read at a glance.' : '12 konsep penting CSS dalam kartu singkat \u2014 baca sekilas.'
+    };
+  }
+}
+</script>
+</body>
+</html>

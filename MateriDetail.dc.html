@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flexDirection:column;gap:var(--space-6)">
+  <sc-if value="{{hasProgress}}" hint-placeholder-val="{{false}}">
+    <div style="display:flex;flexDirection:column;gap:6px">
+      <span style="fontSize:13px;opacity:0.7">{{progressLabel}}</span>
+      <div style="height:8px;borderRadius:999px;background:var(--color-surface);overflow:hidden">
+        <div style="height:100%;borderRadius:999px;background:var(--color-accent);width:{{progressPct}}%;transition:width 0.2s"></div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{hasConcept}}" hint-placeholder-val="{{false}}">
+    <div style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{conceptTitle}}</h2>
+      <div style="display:flex;flexWrap:wrap;alignItems:center;gap:var(--space-2)">
+        <sc-for list="{{conceptNodes}}" as="node" hint-placeholder-count="5">
+          <div style="display:flex;alignItems:center;gap:var(--space-2)">
+            <div style="border:1px solid var(--color-divider);borderRadius:var(--radius-md);padding:12px 14px;background:var(--color-surface);minWidth:140px;maxWidth:190px;display:flex;flexDirection:column;gap:4px">
+              <span style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:14px">{{node.label}}</span>
+              <span style="fontSize:12px;opacity:0.7;lineHeight:1.4">{{node.desc}}</span>
+            </div>
+            <sc-if value="{{node.hasNext}}" hint-placeholder-val="{{true}}">
+              <span style="color:var(--color-accent);fontSize:20px;lineHeight:1">→</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;flexDirection:column;gap:4px;maxWidth:640px;marginTop:var(--space-1)">
+        <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">{{mindsetKicker}}</span>
+        <p style="fontFamily:var(--font-heading);fontStyle:italic;fontSize:18px;lineHeight:1.5;margin:0;opacity:0.9">{{conceptMindset}}</p>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="display:flex;flexDirection:column;gap:var(--space-3)">
+    <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{pathTitle}}</h2>
+    <div style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <sc-for list="{{steps}}" as="step" hint-placeholder-count="6">
+        <div onClick="{{step.onClick}}" style="display:flex;gap:var(--space-3);alignItems:flex-start;padding:10px 12px;margin:0 -12px;borderRadius:var(--radius-md);cursor:pointer;transition:background 0.15s, transform 0.15s" style-hover="background:var(--color-surface);transform:translateX(4px);boxShadow:var(--shadow-sm)">
+          <span style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:15px;color:var(--color-accent);minWidth:26px">{{step.num}}</span>
+          <div style="display:flex;flexDirection:column;gap:2px;flex:1">
+            <div style="display:flex;alignItems:center;gap:8px;flexWrap:wrap">
+              <span style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:16px">{{step.title}}</span>
+              <span style="fontSize:10px;letterSpacing:0.05em;textTransform:uppercase;padding:2px 8px;borderRadius:999px;background:var(--color-surface);opacity:0.7">{{step.difficulty}}</span>
+            </div>
+            <span style="fontSize:14px;opacity:0.75;lineHeight:1.5">{{step.desc}}</span>
+          </div>
+          <button onClick="{{step.onToggleDone}}" style="fontSize:11px;whiteSpace:nowrap;alignSelf:center;padding:5px 10px;borderRadius:999px;border:1px solid {{step.doneBorder}};background:{{step.doneBg}};color:{{step.doneColor}};cursor:pointer">{{step.doneLabel}}</button>
+          <span style="fontSize:12px;color:var(--color-accent);whiteSpace:nowrap;alignSelf:center;paddingLeft:8px">{{detailLabel}} →</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:flex;flexDirection:column;gap:var(--space-3)">
+    <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{termsTitle}}</h2>
+    <table class="table">
+      <thead><tr><th>{{colTerm}}</th><th>{{colDesc}}</th></tr></thead>
+      <tbody>
+        <sc-for list="{{terms}}" as="t" hint-placeholder-count="8">
+          <tr>
+            <td style="fontFamily:monospace;fontSize:13px;whiteSpace:nowrap">{{t.term}}</td>
+            <td style="fontSize:14px">{{t.desc}}</td>
+          </tr>
+        </sc-for>
+      </tbody>
+    </table>
+  </div>
+
+  <sc-if value="{{hasCommands}}" hint-placeholder-val="{{false}}">
+    <div style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{commandsTitle}}</h2>
+      <table class="table">
+        <thead><tr><th>Command</th><th>{{colDesc}}</th></tr></thead>
+        <tbody>
+          <sc-for list="{{commands}}" as="c" hint-placeholder-count="10">
+            <tr>
+              <td style="fontFamily:monospace;fontSize:13px;whiteSpace:nowrap;color:var(--color-accent-2)">{{c.cmd}}</td>
+              <td style="fontSize:14px">{{c.desc}}</td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+  </sc-if>
+
+  <div class="card elev-sm" style="gap:var(--space-2)">
+    <span class="card-kicker">{{projectKicker}}</span>
+    <h3 class="card-title" style="fontSize:19px">{{project.title}}</h3>
+    <p class="card-body" style="opacity:0.9">{{project.desc}}</p>
+    <ol style="margin:0;paddingLeft:20px;display:flex;flexDirection:column;gap:6px;fontSize:14px">
+      <sc-for list="{{project.steps}}" as="s" hint-placeholder-count="4">
+        <li>{{s}}</li>
+      </sc-for>
+    </ol>
+  </div>
+
+  <sc-if value="{{hasOpen}}" hint-placeholder-val="{{false}}">
+    <div class="dialog-backdrop" onClick="{{closeDialog}}">
+      <div class="dialog" onClick="{{stopClick}}" style="maxWidth:560px;maxHeight:80vh;overflowY:auto">
+        <div class="dialog-title">{{activeStep.title}}</div>
+        <div class="dialog-body" style="lineHeight:1.7;fontSize:15px;display:flex;flexDirection:column;gap:12px">
+          <sc-for list="{{activeStep.detailParagraphs}}" as="para" hint-placeholder-count="3">
+            <p style="margin:0">{{para}}</p>
+          </sc-for>
+        </div>
+        <div class="dialog-actions"><button class="btn btn-secondary" onClick="{{closeDialog}}">{{closeLabel}}</button></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { openIndex: null, done: [] };
+  componentDidMount() {
+    const key = this.props.storageKey;
+    if (!key) return;
+    try {
+      const raw = localStorage.getItem(key);
+      this.setState({ done: raw ? JSON.parse(raw) : [] });
+    } catch (e) {}
+  }
+  closeDialog = () => this.setState({ openIndex: null });
+  stopClick = (e) => e.stopPropagation();
+  splitParagraphs = (text) => {
+    if (!text) return [];
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    const paras = [];
+    for (let i = 0; i < sentences.length; i += 2) {
+      paras.push(sentences.slice(i, i + 2).join(' '));
+    }
+    return paras;
+  };
+  toggleDone = (i, e) => {
+    if (e) e.stopPropagation();
+    const key = this.props.storageKey;
+    const set = new Set(this.state.done);
+    if (set.has(i)) set.delete(i); else set.add(i);
+    const arr = Array.from(set);
+    this.setState({ done: arr });
+    if (key) { try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) {} }
+  };
+  renderVals() {
+    const lang = this.props.lang || 'id';
+    const en = lang === 'en';
+    const rawSteps = this.props.steps || [];
+    const doneSet = new Set(this.state.done);
+    const total = rawSteps.length;
+    const diffLabels = en ? ['Beginner', 'Intermediate', 'Advanced'] : ['Pemula', 'Menengah', 'Lanjutan'];
+    const steps = rawSteps.map((s, i) => {
+      const isDone = doneSet.has(i);
+      const tier = total > 0 ? Math.min(2, Math.floor((i / total) * 3)) : 0;
+      return {
+        ...s, num: String(i + 1).padStart(2, '0'), onClick: () => this.setState({ openIndex: i }),
+        difficulty: diffLabels[tier],
+        onToggleDone: (e) => this.toggleDone(i, e),
+        doneLabel: isDone ? (en ? '✓ Done' : '✓ Selesai') : (en ? 'Mark done' : 'Tandai selesai'),
+        doneBg: isDone ? 'var(--color-accent)' : 'transparent',
+        doneColor: isDone ? 'var(--color-bg)' : 'var(--color-accent)',
+        doneBorder: isDone ? 'transparent' : 'var(--color-accent)'
+      };
+    });
+    const rawActiveStep = this.state.openIndex != null ? steps[this.state.openIndex] : null;
+    const activeStep = rawActiveStep ? { ...rawActiveStep, detailParagraphs: this.splitParagraphs(rawActiveStep.detail) } : null;
+    const progressPct = total > 0 ? Math.round((doneSet.size / total) * 100) : 0;
+    const commands = this.props.commands || [];
+    const rawNodes = this.props.conceptNodes || [];
+    const conceptNodes = rawNodes.map((n, i) => ({ ...n, hasNext: i < rawNodes.length - 1 }));
+    return {
+      steps, terms: this.props.terms || [], commands, hasCommands: commands.length > 0,
+      activeStep, hasOpen: !!activeStep, closeDialog: this.closeDialog, stopClick: this.stopClick,
+      hasProgress: total > 0, progressPct,
+      progressLabel: (en ? 'Progress' : 'Progres') + `: ${doneSet.size}/${total} ` + (en ? 'completed' : 'selesai'),
+      detailLabel: en ? 'View detail' : 'Lihat detail', closeLabel: en ? 'Close' : 'Tutup',
+      conceptNodes, hasConcept: conceptNodes.length > 0, conceptMindset: this.props.conceptMindset || '',
+      project: this.props.project || { title: '', desc: '', steps: [] },
+      conceptTitle: en ? 'Concept map' : 'Peta konsep',
+      mindsetKicker: en ? 'How to think about it' : 'Cara berpikir',
+      pathTitle: en ? 'Learning path' : 'Peta belajar',
+      termsTitle: en ? 'Key terms' : 'Istilah penting',
+      commandsTitle: en ? 'Essential commands' : 'Command wajib dikuasai',
+      colTerm: en ? 'Term' : 'Istilah',
+      colDesc: en ? 'Meaning' : 'Arti / fungsi',
+      projectKicker: en ? 'Example project' : 'Contoh project'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flexDirection:column;gap:var(--space-3)">
+  <div style="display:flex;gap:8px;flexWrap:wrap">
+    <sc-for list="{{pills}}" as="p" hint-placeholder-count="6">
+      <button onClick="{{p.onClick}}" style="padding:6px 14px;borderRadius:999px;fontSize:12px;cursor:pointer;border:1px solid {{p.border}};background:{{p.bg}};color:{{p.color}}">{{p.label}}</button>
+    </sc-for>
+  </div>
+  <div style="borderRadius:var(--radius-md);border:1px solid var(--color-divider);overflow:hidden">
+    <sc-for list="{{filtered}}" as="row" hint-placeholder-count="10">
+      <div style="display:flex;gap:var(--space-3);alignItems:center;padding:10px 14px;borderBottom:1px solid var(--color-divider);flexWrap:wrap">
+        <code style="fontFamily:monospace;fontSize:13px;fontWeight:700;color:var(--color-accent-2);minWidth:170px">{{row.property}}</code>
+        <span style="fontSize:13px;opacity:0.8;flex:1;minWidth:150px">{{row.fungsi}}</span>
+        <div style="display:flex;alignItems:center;gap:8px">
+          <code style="fontFamily:monospace;fontSize:12px;background:var(--color-surface);padding:4px 8px;borderRadius:var(--radius-sm)">{{row.contoh}}</code>
+          <button onClick="{{row.onCopy}}" style="fontSize:11px;padding:4px 8px;borderRadius:var(--radius-sm);border:1px solid var(--color-divider);background:transparent;color:var(--color-text);cursor:pointer">{{row.copyLabel}}</button>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { activeCategory: null, copiedIndex: null };
+  renderVals() {
+    const en = (this.props.lang || 'id') === 'en';
+    const rows = this.props.rows || [];
+    const categories = [...new Set(rows.map((r) => r.category))];
+    const active = this.state.activeCategory;
+    const allLabel = en ? 'All' : 'Semua';
+    const pills = [allLabel, ...categories].map((cat) => {
+      const key = cat === allLabel ? null : cat;
+      const on = active === key;
+      return { label: cat, onClick: () => this.setState({ activeCategory: key }), bg: on ? 'var(--color-accent-2)' : 'transparent', color: on ? 'var(--color-bg)' : 'var(--color-text)', border: on ? 'transparent' : 'var(--color-divider)' };
+    });
+    const filteredRows = active ? rows.filter((r) => r.category === active) : rows;
+    const filtered = filteredRows.map((row, i) => ({
+      ...row,
+      copyLabel: this.state.copiedIndex === i ? (en ? 'Copied' : 'Tersalin') : 'Copy',
+      onCopy: () => { try { navigator.clipboard.writeText(row.contoh); } catch (e) {} this.setState({ copiedIndex: i }); setTimeout(() => this.setState({ copiedIndex: null }), 1200); }
+    }));
+    return { pills, filtered };
+  }
+}
+</script>
+</body>
+</html>

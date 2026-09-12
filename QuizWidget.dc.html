@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flexDirection:column;gap:var(--space-4)">
+  <sc-if value="{{hasQuestion}}" hint-placeholder-val="{{true}}">
+    <div style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <span style="fontSize:13px;opacity:0.6">{{progressLabel}}</span>
+      <p style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:19px;margin:0">{{current.q}}</p>
+      <div style="display:flex;flexDirection:column;gap:8px">
+        <sc-for list="{{current.optionRows}}" as="opt" hint-placeholder-count="4">
+          <button onClick="{{opt.onClick}}" style="textAlign:left;padding:12px 14px;borderRadius:var(--radius-md);border:1px solid {{opt.border}};background:{{opt.bg}};color:{{opt.color}};fontSize:15px;cursor:pointer">{{opt.text}}</button>
+        </sc-for>
+      </div>
+      <sc-if value="{{showExplanation}}" hint-placeholder-val="{{false}}">
+        <p style="fontSize:14px;lineHeight:1.6;opacity:0.85;background:var(--color-surface);padding:var(--space-3);borderRadius:var(--radius-md)">{{current.explanation}}</p>
+        <button class="btn btn-primary" onClick="{{onNext}}" style="alignSelf:flex-start">{{nextLabel}}</button>
+      </sc-if>
+    </div>
+  </sc-if>
+  <sc-if value="{{finished}}" hint-placeholder-val="{{false}}">
+    <div style="display:flex;flexDirection:column;gap:var(--space-3);alignItems:flex-start">
+      <p style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{scoreLabel}}: {{score}}/{{total}}</p>
+      <button class="btn btn-secondary" onClick="{{onRestart}}">{{restartLabel}}</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { index: 0, selected: null, score: 0 };
+  onSelect = (i) => {
+    if (this.state.selected !== null) return;
+    const questions = this.props.questions || [];
+    const q = questions[this.state.index];
+    const correct = i === q.answerIndex;
+    this.setState({ selected: i, score: this.state.score + (correct ? 1 : 0) });
+  };
+  onNext = () => this.setState({ index: this.state.index + 1, selected: null });
+  onRestart = () => this.setState({ index: 0, selected: null, score: 0 });
+  renderVals() {
+    const en = (this.props.lang || 'id') === 'en';
+    const questions = this.props.questions || [];
+    const total = questions.length;
+    const finished = this.state.index >= total;
+    const q = !finished ? questions[this.state.index] : null;
+    let current = null;
+    if (q) {
+      const optionRows = q.options.map((text, i) => {
+        const sel = this.state.selected;
+        let bg = 'transparent', border = 'var(--color-divider)', color = 'var(--color-text)';
+        if (sel !== null) {
+          if (i === q.answerIndex) { bg = 'var(--color-accent-100)'; border = 'var(--color-accent-700)'; color = 'var(--color-accent-800)'; }
+          else if (i === sel) { bg = 'var(--color-accent-2-100)'; border = 'var(--color-accent-2-700)'; color = 'var(--color-accent-2-800)'; }
+        }
+        return { text, bg, border, color, onClick: () => this.onSelect(i) };
+      });
+      current = { q: q.q, optionRows, explanation: q.explanation };
+    }
+    return {
+      hasQuestion: !!q, finished, current,
+      showExplanation: this.state.selected !== null,
+      progressLabel: en ? `Question ${this.state.index + 1} of ${total}` : `Soal ${this.state.index + 1} dari ${total}`,
+      nextLabel: en ? 'Next' : 'Lanjut', onNext: this.onNext,
+      scoreLabel: en ? 'Score' : 'Skor', score: this.state.score, total,
+      restartLabel: en ? 'Try again' : 'Ulangi', onRestart: this.onRestart
+    };
+  }
+}
+</script>
+</body>
+</html>

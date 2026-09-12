@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="assets/broadsheet.css">
+</helmet>
+<div style="background:var(--color-bg);color:var(--color-text);minHeight:100vh;display:flex;flexDirection:column">
+  <dc-import name="SiteNav" active="web-development" lang="{{lang}}" on-toggle-lang="{{toggleLang}}" hint-size="100%,60px"></dc-import>
+  <main style="maxWidth:1180px;margin:0 auto;padding:var(--space-8) var(--space-4);width:100%;boxSizing:border-box;display:flex;flexDirection:column;gap:var(--space-6)">
+    <section style="display:flex;flexDirection:column;gap:var(--space-2);maxWidth:640px;borderTop:3px solid var(--color-accent-2);paddingTop:var(--space-4)">
+      <span style="fontSize:12px;letterSpacing:0.1em;textTransform:uppercase;color:var(--color-accent-2)">{{kicker}}</span>
+      <h1 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:36px;margin:0">Web Development</h1>
+      <p style="fontSize:16px;opacity:0.8">{{desc}}</p>
+      <a href="css-playground.dc.html" style="fontSize:14px;color:var(--color-accent-2)">{{cssLink}} →</a>
+      <a href="html-playground.dc.html" style="fontSize:14px;color:var(--color-accent-2)">{{htmlLink}} →</a>
+      <a href="js-playground.dc.html" style="fontSize:14px;color:var(--color-accent-2)">{{jsLink}} →</a>
+    </section>
+    <dc-import name="DashStats" stats="{{stats}}" hint-size="100%,80px"></dc-import>
+    <nav style="display:flex;gap:10px;flexWrap:wrap">
+      <a href="#materi" class="tag tag-outline" style="textDecoration:none">{{navMateri}}</a>
+      <a href="#playground" class="tag tag-outline" style="textDecoration:none">{{navPlayground}}</a>
+      <a href="#quiz" class="tag tag-outline" style="textDecoration:none">{{navQuiz}}</a>
+    </nav>
+    <div id="materi">
+      <dc-import name="MateriDetail" storage-key="lwj_progress_webdev" concept-nodes="{{materiConceptNodes}}" concept-mindset="{{materiConceptMindset}}" steps="{{materiSteps}}" terms="{{materiTerms}}" project="{{materiProject}}" lang="{{lang}}" hint-size="100%,600px"></dc-import>
+    </div>
+    <div id="playground" style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{playgroundTitle}}</h2>
+      <p style="fontSize:14px;opacity:0.7;margin:0">{{playgroundDesc}}</p>
+      <dc-import name="CodePlayground" lang="{{lang}}" hint-size="100%,380px"></dc-import>
+    </div>
+    <div id="quiz" style="display:flex;flexDirection:column;gap:var(--space-3)">
+      <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{quizTitle}}</h2>
+      <dc-import name="QuizWidget" questions="{{quiz}}" lang="{{lang}}" hint-size="100%,260px"></dc-import>
+    </div>
+    <h2 style="fontFamily:var(--font-heading);fontWeight:var(--font-heading-weight);fontSize:22px;margin:0">{{articlesTitle}}</h2>
+    <dc-import name="ArticleGrid" articles="{{articles}}" tags="{{tags}}" lang="{{lang}}" hint-size="100%,400px"></dc-import>
+  </main>
+  <dc-import name="SiteFooter" lang="{{lang}}" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'id', articles: [], tags: [], materi: { steps: [], terms: [], project: {} }, quiz: [] };
+  componentDidMount() {
+    import('./content.js').then((mod) => {
+      this.mod = mod;
+      this.setState({ lang: mod.langHelpers.getLang(), articles: mod.articles.webdev, tags: mod.tags.webdev, materi: mod.materi.webdev, quiz: mod.quiz.webdev });
+    });
+  }
+  toggleLang = () => {
+    const next = this.state.lang === 'en' ? 'id' : 'en';
+    if (this.mod) this.mod.langHelpers.setLang(next);
+    this.setState({ lang: next });
+  };
+  renderVals() {
+    const en = this.state.lang === 'en';
+    return {
+      lang: this.state.lang, toggleLang: this.toggleLang, articles: this.state.articles, tags: this.state.tags,
+      materiSteps: this.state.materi.steps, materiTerms: this.state.materi.terms, materiProject: this.state.materi.project,
+      materiConceptNodes: this.state.materi.concept ? this.state.materi.concept.nodes : [], materiConceptMindset: this.state.materi.concept ? this.state.materi.concept.mindset : '',
+      articlesTitle: en ? 'Articles' : 'Artikel',
+      kicker: en ? 'Category' : 'Kategori',
+      desc: en ? 'Frontend, backend, APIs, and databases, code snippets and notes from my small projects.' : 'Frontend, backend, API, dan database, potongan kode dan catatan dari proyek-proyek kecilku.',
+      quiz: this.state.quiz,
+      stats: [
+        { value: (this.state.materi.steps || []).length, label: en ? 'Lessons' : 'Materi' },
+        { value: (this.state.materi.terms || []).length, label: en ? 'Terms' : 'Istilah' },
+        { value: en ? 'Live' : 'Interaktif', label: 'Playground' },
+        { value: en ? 'Beginner' : 'Pemula', label: en ? 'Friendly' : 'Ramah' }
+      ],
+      navMateri: en ? 'Learning path' : 'Materi', navPlayground: 'Playground', navQuiz: 'Quiz',
+      playgroundTitle: en ? 'CSS playground' : 'Playground CSS',
+      playgroundDesc: en ? 'Edit the HTML/CSS below and see the live preview update.' : 'Ubah HTML/CSS di bawah dan lihat preview-nya berubah langsung.',
+      quizTitle: en ? 'Quick quiz' : 'Kuis singkat',
+      cssLink: en ? 'Full CSS playground: Color, Text, Box Model, Flexbox, Grid & more' : 'Playground CSS lengkap: Warna, Text, Box Model, Flexbox, Grid & lainnya',
+      htmlLink: en ? 'Full HTML playground: structure, elements, attributes & tags' : 'Playground HTML lengkap: struktur, elemen, atribut & tag',
+      jsLink: en ? 'Full JavaScript playground: variables, functions, conditions & loops' : 'Playground JavaScript lengkap: variabel, fungsi, kondisi & perulangan'
+    };
+  }
+}
+</script>
+</body>
+</html>
